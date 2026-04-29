@@ -1,6 +1,10 @@
 # **Voice Bank Project**
 ---
 # **JANGAN LUPA UPDATE TRELLO**
+1. Jangan push ke main
+2. Tiap develop push ke branch masing-masing sesuai aturan branch rules
+3. Kalau udah push ke branch masing-masing minta review ke anggota biar dinilai dulu
+4. Kalau udah nanti di merge ke develop abis tu ke main setiap minggu sesuai milestone
 ---
 ## 📌 Deskripsi
 
