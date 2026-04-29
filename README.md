@@ -5,6 +5,7 @@
 2. Tiap develop push ke branch masing-masing sesuai aturan branch rules
 3. Kalau udah push ke branch masing-masing minta review ke anggota biar dinilai dulu
 4. Kalau udah nanti di merge ke develop abis tu ke main setiap minggu sesuai milestone
+5. Update TRELLO JANGAN LUPA !!!!!!!!!!!!!!! Link: https://trello.com/b/Dfh845Ky/voice-bank-project
 ---
 ## 📌 Deskripsi
 
