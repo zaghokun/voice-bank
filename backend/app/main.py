@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from app.routers import transactions  # sudah ada
-# nanti setelah impor, tambahkan ini di bawah app = FastAPI(...)
-app.include_router(voice_router, prefix="/api", tags=["Voice Input"])
+from app.routers import transactions
+from app.routers import voice_input          # impor dulu
 
-app = FastAPI(title="VoiceBank API", version="1.0.0")
+app = FastAPI(title="VoiceBank API", version="1.0.0")  # ← ini harus di atas semua include_router
 
 app.include_router(transactions.router, prefix="/api", tags=["Transactions"])
+app.include_router(voice_input.router, prefix="/api", tags=["Voice Input"])
 
 @app.get("/")
 def root():
