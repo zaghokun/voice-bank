@@ -1,0 +1,17 @@
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Jupyter Notebook cache
+.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temporary scraping folder
+tweets-data/
+
+data-science/data/raw/
