@@ -1,3 +1,5 @@
 google-play-scraper
 pandas
 tqdm
+seaborn
+wordcloud
