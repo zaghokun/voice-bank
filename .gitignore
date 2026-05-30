@@ -36,3 +36,5 @@ data-science/data/raw/
 output_mfcc/
 temp_gtts/
 *.npz
+
+.kiro
