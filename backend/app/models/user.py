@@ -7,7 +7,9 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
     phone = Column(String, nullable=True)
-    disability_type = Column(String, nullable=True) #Tipe disabilitas?
+    disability_type = Column(String, nullable=True)
     preferred_dialect = Column(String, nullable=True)
+    balance = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
