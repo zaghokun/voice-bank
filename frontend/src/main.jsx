@@ -3,12 +3,15 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './App';
 import { AuthProvider } from './hooks/useAuth';
+import { ThemeProvider } from './hooks/useTheme';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <AuthProvider>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </AuthProvider>
   </BrowserRouter>
 );

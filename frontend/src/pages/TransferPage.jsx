@@ -2,386 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Mic, CheckCircle2, Clock,
-  CreditCard, ArrowRight, Info, User2
+  CreditCard, ArrowRight, Info
 } from 'lucide-react';
-
-/* ─── Styles ─── */
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap');
-
-  @keyframes vb-fade-up   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes vb-fade-in   { from{opacity:0} to{opacity:1} }
-  @keyframes vb-scale-in  { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
-  @keyframes vb-ping      { 75%,100%{transform:scale(2);opacity:0} }
-  @keyything vb-wave      { 0%,100%{transform:scaleY(0.3)} 50%{transform:scaleY(1)} }
-  @keyframes vb-wave      { 0%,100%{transform:scaleY(0.3)} 50%{transform:scaleY(1)} }
-  @keyframes vb-check     { from{stroke-dashoffset:60} to{stroke-dashoffset:0} }
-
-  .vb-root * { box-sizing:border-box; margin:0; padding:0; }
-
-  /* ── Shell ── */
-  .vb-page {
-    font-family:'DM Sans',sans-serif;
-    min-height:100svh;
-    background:#09090b;
-    background-image:
-      radial-gradient(ellipse 70% 50% at 20% -5%,rgba(251,207,232,0.08) 0%,transparent 65%),
-      radial-gradient(ellipse 40% 35% at 85% 90%,rgba(251,207,232,0.04) 0%,transparent 60%);
-    color:#ffffff;
-    padding:28px 24px 56px;
-    animation:vb-fade-up .5s cubic-bezier(.22,1,.36,1) both;
-  }
-
-  /* ── Top bar ── */
-  .vb-topbar {
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:32px;
-  }
-  .vb-topbar-left { display:flex; align-items:center; gap:14px; }
-  .vb-back-btn {
-    width:38px; height:38px; border-radius:12px;
-    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; color:rgba(255,255,255,0.5);
-    transition:background .2s,color .2s;
-  }
-  .vb-back-btn:hover { background:rgba(255,255,255,0.08); color:#ffffff; }
-  .vb-page-title {
-    font-family:'Syne',sans-serif;
-    font-size:20px; font-weight:800; color:#ffffff; letter-spacing:.04em;
-  }
-  .vb-page-title span { color:#fbcfe8; }
-
-  /* Voice toggle pill */
-  .vb-voice-pill {
-    display:flex; align-items:center; gap:10px;
-    background:#18181b; border:1px solid rgba(255,255,255,0.08);
-    border-radius:99px; padding:8px 16px;
-  }
-  .vb-voice-pill-label {
-    font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase;
-    color:rgba(255,255,255,0.3);
-  }
-  /* toggle switch */
-  .vb-toggle { position:relative; display:inline-flex; align-items:center; cursor:pointer; }
-  .vb-toggle input { position:absolute; opacity:0; width:0; height:0; }
-  .vb-toggle-track {
-    width:36px; height:20px; border-radius:99px;
-    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
-    transition:background .25s, border-color .25s;
-    position:relative;
-  }
-  .vb-toggle input:checked ~ .vb-toggle-track { background:#fbcfe8; border-color:#fbcfe8; }
-  .vb-toggle-thumb {
-    position:absolute; top:2px; left:2px;
-    width:16px; height:16px; border-radius:50%;
-    background:#ffffff; transition:transform .25s;
-    pointer-events:none;
-  }
-  .vb-toggle input:checked ~ .vb-toggle-track .vb-toggle-thumb { transform:translateX(16px); }
-
-  /* ── Step breadcrumb ── */
-  .vb-steps {
-    display:flex; align-items:center; gap:6px;
-    margin-bottom:28px;
-  }
-  .vb-step-dot {
-    width:24px; height:6px; border-radius:99px;
-    background:rgba(255,255,255,0.08);
-    transition:background .3s, width .3s;
-  }
-  .vb-step-dot.done   { background:rgba(251,207,232,.4); }
-  .vb-step-dot.active { background:#fbcfe8; width:32px; }
-
-  /* ── Error banner ── */
-  .vb-error {
-    display:flex; align-items:flex-start; gap:10px;
-    background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.18);
-    border-radius:12px; padding:14px 16px; margin-bottom:20px;
-    animation:vb-fade-in .25s ease both;
-  }
-  .vb-error p { font-size:13px; color:rgba(251,191,36,.9); line-height:1.5; }
-
-  /* ── Card base ── */
-  .vb-card {
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-    background:#18181b;
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:20px; padding:28px;
-  }
-
-  /* ── Section label ── */
-  .vb-slabel {
-    font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase;
-    color:rgba(255,255,255,0.3); margin-bottom:20px;
-  }
-
-  /* ── Field ── */
-  .vb-field { display:flex; flex-direction:column; gap:6px; }
-  .vb-field label {
-    font-size:11px; font-weight:500; letter-spacing:.10em; text-transform:uppercase;
-    color:rgba(255,255,255,0.3); padding-left:2px;
-  }
-  .vb-input {
-    width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px; padding:14px 16px;
-    font-family:'DM Sans',sans-serif; font-size:14px; color:#ffffff; outline:none;
-    transition:border-color .2s, background .2s; caret-color:#fbcfe8;
-  }
-  .vb-input::placeholder { color:rgba(255,255,255,0.2); }
-  .vb-input:hover  { border-color:rgba(255,255,255,0.2); }
-  .vb-input:focus  { border-color:rgba(251,207,232,.55); background:rgba(251,207,232,.04); }
-  .vb-input-icon-wrap {
-    position:relative;
-  }
-  .vb-input-icon-wrap .vb-input { padding-right:46px; }
-  .vb-input-icon {
-    position:absolute; right:14px; top:50%; transform:translateY(-50%);
-    color:rgba(255,255,255,0.2); pointer-events:none;
-  }
-  .vb-recipient-hint {
-    font-size:12px; font-weight:500; color:#f9a8d4; padding-left:4px;
-    animation:vb-fade-in .2s ease both;
-  }
-
-  /* ── Amount input ── */
-  .vb-amount-wrap {
-    display:flex; align-items:center; gap:0;
-    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px; overflow:hidden;
-    transition:border-color .2s;
-  }
-  .vb-amount-wrap:focus-within { border-color:rgba(251,207,232,.55); }
-  .vb-amount-prefix {
-    padding:0 16px;
-    font-family:'Syne',sans-serif; font-size:16px; font-weight:700;
-    color:rgba(255,255,255,0.3);
-    border-right:1px solid rgba(255,255,255,0.08);
-    white-space:nowrap; user-select:none;
-    align-self:stretch; display:flex; align-items:center;
-  }
-  .vb-amount-input {
-    flex:1; background:transparent; border:none; outline:none;
-    padding:18px 16px;
-    font-family:'DM Mono',monospace; font-size:28px; font-weight:500;
-    color:#ffffff; caret-color:#fbcfe8; min-width:0;
-  }
-  .vb-amount-input::placeholder { color:rgba(255,255,255,0.12); }
-  .vb-amount-hint {
-    font-size:12px; color:rgba(255,255,255,0.3); padding-left:4px; margin-top:2px;
-    animation:vb-fade-in .2s ease both;
-  }
-
-  /* Shortcut chips */
-  .vb-chips { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-  .vb-chip {
-    background:#18181b; border:1px solid rgba(255,255,255,0.08);
-    border-radius:10px; padding:11px 6px;
-    font-size:12px; font-weight:500; color:rgba(255,255,255,0.5);
-    cursor:pointer; text-align:center;
-    transition:background .2s, color .2s, border-color .2s, transform .15s;
-  }
-  .vb-chip:hover  { background:rgba(255,255,255,0.08); color:#ffffff; border-color:rgba(255,255,255,0.2); }
-  .vb-chip:active { transform:scale(.96); }
-
-  /* ── Recipient avatar ── */
-  .vb-avatar-lg {
-    width:52px; height:52px; border-radius:16px; flex-shrink:0;
-    background:rgba(251,207,232,.1); border:1px solid rgba(251,207,232,.18);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Syne',sans-serif; font-size:14px; font-weight:800; color:#f9a8d4;
-  }
-
-  /* History contacts */
-  .vb-contacts { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-  @media(min-width:640px)  { .vb-contacts { grid-template-columns:repeat(3,1fr); } }
-  @media(min-width:1024px) { .vb-contacts { grid-template-columns:repeat(4,1fr); } }
-  .vb-contact-card {
-    display:flex; align-items:center; gap:12px;
-    background:#18181b; border:1px solid rgba(255,255,255,0.08);
-    border-radius:14px; padding:14px;
-    cursor:pointer; transition:background .2s, border-color .2s, transform .15s;
-  }
-  .vb-contact-card:hover  { background:rgba(255,255,255,0.08); border-color:rgba(251,207,232,.25); }
-  .vb-contact-card:active { transform:scale(.97); }
-  .vb-contact-avatar {
-    width:38px; height:38px; border-radius:10px; flex-shrink:0;
-    background:rgba(255,255,255,0.08);
-    display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:700; color:rgba(255,255,255,0.6);
-  }
-  .vb-contact-name { font-size:13px; font-weight:500; color:#ffffff; line-height:1.3; }
-  .vb-contact-acc  { font-size:11px; font-family:'DM Mono',monospace; color:rgba(255,255,255,0.3); margin-top:2px; }
-
-  /* ── Grid layouts ── */
-  .vb-two-col { display:grid; grid-template-columns:1fr; gap:20px; }
-  @media(min-width:1024px) { .vb-two-col { grid-template-columns:5fr 7fr; } }
-  .vb-two-col-even { display:grid; grid-template-columns:1fr; gap:20px; }
-  @media(min-width:1024px) { .vb-two-col-even { grid-template-columns:7fr 5fr; } }
-
-  /* ── Confirm rows ── */
-  .vb-confirm-row {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.04);
-    font-size:13px;
-  }
-  .vb-confirm-row:last-child { border-bottom:none; }
-  .vb-confirm-row .label { color:rgba(255,255,255,0.4); }
-  .vb-confirm-row .value { color:#ffffff; font-weight:500; text-align:right; }
-  .vb-confirm-row .value.mono { font-family:'DM Mono',monospace; font-size:12px; }
-  .vb-confirm-row .value.green { color:#10b981; font-weight:600; }
-
-  /* Disclaimer box */
-  .vb-disclaimer {
-    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px; padding:14px 16px;
-    font-size:12px; color:rgba(255,255,255,0.3); line-height:1.7;
-  }
-
-  /* ── CTA button ── */
-  .vb-btn {
-    width:100%; padding:15px; border-radius:12px; border:none; cursor:pointer;
-    font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; letter-spacing:.05em;
-    color:#09090b; background:linear-gradient(135deg,#fbcfe8 0%,#f472b6 100%);
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    transition:opacity .2s, transform .15s; position:relative; overflow:hidden;
-  }
-  .vb-btn::after {
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,transparent 100%);
-    pointer-events:none;
-  }
-  .vb-btn:hover  { opacity:.88; }
-  .vb-btn:active { transform:scale(.98); }
-  .vb-btn-ghost {
-    width:100%; padding:14px; border-radius:12px;
-    border:1px solid rgba(255,255,255,0.08);
-    background:#18181b; cursor:pointer;
-    font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500;
-    color:rgba(255,255,255,0.6);
-    transition:background .2s, color .2s, transform .15s;
-  }
-  .vb-btn-ghost:hover  { background:rgba(255,255,255,0.08); color:#ffffff; }
-  .vb-btn-ghost:active { transform:scale(.98); }
-
-  /* ── Success ── */
-  .vb-success {
-    max-width:500px; margin:0 auto; text-align:center;
-    animation:vb-scale-in .5s cubic-bezier(.22,1,.36,1) both;
-  }
-  .vb-success-icon {
-    width:72px; height:72px; border-radius:22px;
-    background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.2);
-    display:flex; align-items:center; justify-content:center;
-    margin:0 auto 24px;
-  }
-  .vb-success-title {
-    font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#ffffff;
-    margin-bottom:6px;
-  }
-  .vb-success-sub { font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:28px; }
-  .vb-success-receipt {
-    background:#18181b; border:1px solid rgba(255,255,255,0.08);
-    border-radius:16px; padding:20px 24px; margin-bottom:24px; text-align:left;
-  }
-  .vb-ref {
-    font-family:'DM Mono',monospace; font-size:11px;
-    color:rgba(255,255,255,0.3); letter-spacing:.08em;
-    margin-bottom:16px; padding-bottom:12px;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-  }
-  .vb-total-label { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:rgba(255,255,255,0.3); margin-bottom:4px; }
-  .vb-total-amount {
-    font-family:'Syne',sans-serif; font-size:28px; font-weight:800;
-    color:#ffffff; margin-bottom:20px;
-  }
-
-  /* ── Voice panel ── */
-  .vb-voice-panel {
-    background:#18181b; border:1px solid rgba(255,255,255,0.08);
-    border-radius:20px; overflow:hidden;
-    animation:vb-fade-in .3s ease both;
-  }
-  .vb-voice-inner {
-    display:grid; grid-template-columns:1fr; gap:0;
-  }
-  @media(min-width:768px) { .vb-voice-inner { grid-template-columns:1fr 1fr; } }
-  .vb-voice-left {
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:48px 28px;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-  }
-  @media(min-width:768px) {
-    .vb-voice-left { border-bottom:none; border-right:1px solid rgba(255,255,255,0.08); }
-  }
-  .vb-mic-wrap { position:relative; margin-bottom:20px; }
-  .vb-mic-ping {
-    position:absolute; inset:-14px; border-radius:50%;
-    background:rgba(251,207,232,.15);
-    animation:vb-ping 1.4s cubic-bezier(0,0,.2,1) infinite;
-  }
-  .vb-mic-ring {
-    position:absolute; inset:-7px; border-radius:50%;
-    border:1px solid rgba(251,207,232,.15);
-    animation:vb-ping 1.8s .4s cubic-bezier(0,0,.2,1) infinite;
-  }
-  .vb-mic-btn {
-    position:relative; z-index:1;
-    width:88px; height:88px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; border:none;
-    transition:transform .2s, box-shadow .2s;
-  }
-  .vb-mic-btn.idle {
-    background:rgba(255,255,255,0.04);
-    border:1.5px solid rgba(255,255,255,0.12);
-  }
-  .vb-mic-btn.active {
-    background:#fbcfe8;
-    box-shadow:0 0 32px rgba(251,207,232,.4);
-  }
-  .vb-mic-btn:hover  { transform:scale(1.06); }
-  .vb-mic-btn:active { transform:scale(.97); }
-  .vb-wave-row { display:flex; align-items:center; gap:3px; height:28px; }
-  .vb-wbar {
-    width:3px; border-radius:99px; background:rgba(251,207,232,.7);
-  }
-  .vb-wbar:nth-child(1){height:8px; animation:vb-wave .9s 0s ease-in-out infinite}
-  .vb-wbar:nth-child(2){height:18px;animation:vb-wave .9s .1s ease-in-out infinite}
-  .vb-wbar:nth-child(3){height:24px;animation:vb-wave .9s .2s ease-in-out infinite}
-  .vb-wbar:nth-child(4){height:14px;animation:vb-wave .9s .3s ease-in-out infinite}
-  .vb-wbar:nth-child(5){height:22px;animation:vb-wave .9s .15s ease-in-out infinite}
-  .vb-wbar:nth-child(6){height:10px;animation:vb-wave .9s .25s ease-in-out infinite}
-  .vb-wbar:nth-child(7){height:16px;animation:vb-wave .9s .05s ease-in-out infinite}
-  .vb-voice-right { padding:40px 32px; display:flex; flex-direction:column; gap:20px; }
-  .vb-transcript {
-    background:#18181b; border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px; padding:16px;
-    min-height:64px; display:flex; align-items:center;
-  }
-  .vb-transcript p { font-size:14px; color:rgba(255,255,255,0.3); font-style:italic; line-height:1.5; }
-  .vb-transcript p.live { color:#ffffff; font-style:normal; }
-  .vb-tips {
-    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-    border-radius:12px; padding:16px;
-  }
-  .vb-tips-title {
-    font-size:11px; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
-    color:rgba(255,255,255,0.3); margin-bottom:10px;
-  }
-  .vb-tips ul { padding-left:0; list-style:none; display:flex; flex-direction:column; gap:8px; }
-  .vb-tips li {
-    font-size:12px; color:rgba(255,255,255,0.4); line-height:1.5;
-    padding-left:14px; position:relative;
-  }
-  .vb-tips li::before {
-    content:''; position:absolute; left:0; top:7px;
-    width:5px; height:5px; border-radius:50%;
-    background:rgba(251,207,232,.5);
-  }
-`;
-
-function StyleTag() { return <style dangerouslySetInnerHTML={{ __html: styles }} />; }
+import { useTheme } from '../hooks/useTheme';
 
 function initials(name) {
   if (!name) return '?';
@@ -390,6 +13,7 @@ function initials(name) {
 
 export default function TransferPage() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [step, setStep] = useState(1);
@@ -450,276 +74,283 @@ export default function TransferPage() {
   const stepLabels = ['Penerima','Nominal','Konfirmasi','Selesai'];
 
   return (
-    <div className="vb-root">
-      <StyleTag />
-      <div className="vb-page">
-
-        {/* Top bar */}
-        <div className="vb-topbar">
-          <div className="vb-topbar-left">
-            <button className="vb-back-btn" onClick={handleBack} aria-label="Kembali">
-              <ArrowLeft size={16} />
-            </button>
-            <h1 className="vb-page-title">Transfer<span>.</span></h1>
-          </div>
-
-          <div className="vb-voice-pill">
-            <span className="vb-voice-pill-label">Mode Suara</span>
-            <label className="vb-toggle">
-              <input type="checkbox" checked={voiceEnabled}
-                onChange={() => { setVoiceEnabled(p => !p); handleReset(); }} />
-              <div className="vb-toggle-track">
-                <div className="vb-toggle-thumb" />
-              </div>
-            </label>
-          </div>
+    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#09090b] bg-[radial-gradient(ellipse_70%_50%_at_20%_-5%,rgba(99,102,241,0.05)_0%,transparent_65%),radial-gradient(ellipse_40%_35%_at_85%_90%,rgba(244,114,182,0.04)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_70%_50%_at_20%_-5%,rgba(251,207,232,0.08)_0%,transparent_65%),radial-gradient(ellipse_40%_35%_at_85%_90%,rgba(251,207,232,0.04)_0%,transparent_60%)] text-zinc-800 dark:text-white p-6 pb-14 animate-fade-up font-sans selection:bg-pink-500/10 dark:selection:bg-[#fbcfe8]/30">
+      
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3.5">
+          <button className="w-[38px] h-[38px] rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 dark:bg-white/4 dark:border-white/8 flex items-center justify-center cursor-pointer dark:text-white/50 transition-colors dark:hover:bg-white/8 dark:hover:text-white" onClick={handleBack} aria-label="Kembali">
+            <ArrowLeft size={16} />
+          </button>
+          <h1 className="font-syne text-[20px] font-extrabold text-zinc-800 dark:text-white tracking-[0.04em]">Transfer<span className="text-pink-500 dark:text-[#fbcfe8]">.</span></h1>
         </div>
 
-        {/* Step indicator (manual only) */}
-        {!voiceEnabled && step < 4 && (
-          <div className="vb-steps">
-            {stepLabels.slice(0,3).map((_, i) => (
-              <div key={i} className={`vb-step-dot ${i+1 < step ? 'done' : i+1 === step ? 'active' : ''}`} />
-            ))}
-            <span style={{ fontSize:11, color: '#fbcfe8', marginLeft:6, letterSpacing:'.06em' }}>
-              Langkah {step} dari 3 — {stepLabels[step-1]}
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-2.5 bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-full px-4 py-2 shadow-sm dark:shadow-none">
+          <span className="text-[11px] font-medium tracking-[0.1em] uppercase text-zinc-400 dark:text-white/30">Mode Suara</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked={voiceEnabled} className="sr-only peer"
+              onChange={() => { setVoiceEnabled(p => !p); handleReset(); }} />
+            <div className="w-9 h-5 rounded-full bg-zinc-200 border border-zinc-300 dark:bg-white/8 dark:border-white/12 transition-all duration-250 relative peer-checked:bg-pink-500 peer-checked:border-pink-500 dark:peer-checked:bg-[#fbcfe8] dark:peer-checked:border-[#fbcfe8]">
+              <div className="absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-white transition-all duration-250 pointer-events-none peer-checked:translate-x-4" />
+            </div>
+          </label>
+        </div>
+      </div>
 
-        {/* Error */}
-        {error && (
-          <div className="vb-error">
-            <Info size={15} color="rgba(251,191,36,.8)" style={{ flexShrink:0, marginTop:1 }} />
-            <p>{error}</p>
-          </div>
-        )}
+      {/* Step indicator (manual only) */}
+      {!voiceEnabled && step < 4 && (
+        <div className="flex items-center gap-1.5 mb-7">
+          {stepLabels.slice(0,3).map((_, i) => (
+            <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i+1 < step ? 'bg-pink-500/30 dark:bg-[#fbcfe8]/40 w-6' : i+1 === step ? 'bg-pink-500 dark:bg-[#fbcfe8] w-8' : 'bg-zinc-200 dark:bg-white/8 w-6'}`} />
+          ))}
+          <span className="text-[11px] text-pink-600 dark:text-[#fbcfe8] ml-1.5 tracking-[0.06em]">
+            Langkah {step} dari 3 — {stepLabels[step-1]}
+          </span>
+        </div>
+      )}
 
-        {/* ══════════════════════════════════════════════ */}
-        {/* MANUAL FLOW                                    */}
-        {/* ══════════════════════════════════════════════ */}
-        {!voiceEnabled && (
-          <>
-            {/* STEP 1 */}
-            {step === 1 && (
-              <div style={{ display:'flex', flexDirection:'column', gap:20, animation:'vb-fade-up .35s ease both' }}>
-                <div className="vb-card">
-                  <p className="vb-slabel">Tujuan transfer</p>
-                  <div className="vb-field" style={{ marginBottom:16 }}>
-                    <label>Nomor Rekening</label>
-                    <div className="vb-input-icon-wrap">
-                      <input
-                        className="vb-input"
-                        type="text" inputMode="numeric"
-                        placeholder="Masukkan nomor rekening tujuan"
-                        value={accountNumber}
-                        onChange={e => { setAccountNumber(e.target.value.replace(/[^0-9]/g,'')); setError(''); }}
-                      />
-                      <span className="vb-input-icon"><CreditCard size={16} /></span>
-                    </div>
-                    {recipientName && <p className="vb-recipient-hint">Pemilik: {recipientName}</p>}
-                  </div>
-                  <button className="vb-btn" onClick={handleNextStep}>
-                    Lanjut <ArrowRight size={16} />
-                  </button>
-                </div>
+      {/* Error */}
+      {error && (
+        <div className="flex items-start gap-2.5 bg-amber-500/6 border border-amber-500/18 rounded-xl p-3.5 px-4 mb-5 animate-fade-in">
+          <Info size={15} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-600 dark:text-amber-400 leading-normal">{error}</p>
+        </div>
+      )}
 
-                <div>
-                  <p className="vb-slabel" style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <Clock size={12} /> Riwayat penerima
-                  </p>
-                  <div className="vb-contacts">
-                    {recipientHistory.map((c,i) => (
-                      <div key={i} className="vb-contact-card" onClick={() => handleSelectHistory(c)}>
-                        <div className="vb-contact-avatar">{c.initial}</div>
-                        <div>
-                          <p className="vb-contact-name">{c.name}</p>
-                          <p className="vb-contact-acc">{c.accNo}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 2 */}
-            {step === 2 && (
-              <div className="vb-two-col" style={{ animation:'vb-fade-up .35s ease both' }}>
-                {/* Recipient info */}
-                <div className="vb-card" style={{ display:'flex', flexDirection:'column', gap:20 }}>
-                  <p className="vb-slabel">Penerima</p>
-                  <div style={{ display:'flex', alignItems:'center', gap:14, paddingBottom:20, borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-                    <div className="vb-avatar-lg">{initials(recipientName)}</div>
-                    <div>
-                      <p style={{ fontSize:15, fontWeight:500, color:'#ffffff', marginBottom:4 }}>{recipientName}</p>
-                      <p style={{ fontSize:12, fontFamily:'DM Mono,monospace', color: '#fbcfe8' }}>{accountNumber}</p>
-                    </div>
-                  </div>
-                  <div className="vb-field" style={{ flex:1 }}>
-                    <label>Catatan (opsional)</label>
+      {/* ══════════════════════════════════════════════ */}
+      {/* MANUAL FLOW                                    */}
+      {/* ══════════════════════════════════════════════ */}
+      {!voiceEnabled && (
+        <>
+          {/* STEP 1 */}
+          {step === 1 && (
+            <div className="flex flex-col gap-5 animate-fade-up">
+              <div className="shadow-md dark:shadow-none bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/8 rounded-[20px] p-7">
+                <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-5">Tujuan transfer</p>
+                <div className="flex flex-col gap-1.5 mb-4">
+                  <label className="text-[11px] font-medium tracking-[0.10em] uppercase text-zinc-400 dark:text-white/30 pl-0.5">Nomor Rekening</label>
+                  <div className="relative">
                     <input
-                      className="vb-input" type="text"
-                      value={note} onChange={e => setNote(e.target.value)}
-                      placeholder="Tulis keterangan transfer"
+                      className="w-full bg-zinc-50 border border-zinc-200 dark:bg-white/4 dark:border-white/8 rounded-xl px-4 py-3.5 pr-[46px] font-sans text-sm text-zinc-900 dark:text-white outline-none transition-all placeholder-zinc-400 dark:placeholder-white/20 hover:border-zinc-300 dark:hover:border-white/20 focus:border-pink-500/55 dark:focus:border-[#fbcfe8]/55 focus:bg-pink-50/20 dark:focus:bg-[#fbcfe8]/4"
+                      type="text" inputMode="numeric"
+                      placeholder="Masukkan nomor rekening tujuan"
+                      value={accountNumber}
+                      onChange={e => { setAccountNumber(e.target.value.replace(/[^0-9]/g,'')); setError(''); }}
                     />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-white/20 pointer-events-none"><CreditCard size={16} /></span>
                   </div>
+                  {recipientName && <p className="text-xs font-medium text-pink-600 dark:text-[#f9a8d4] pl-1 animate-fade-in">Pemilik: {recipientName}</p>}
                 </div>
+                <button className="w-full p-[15px] rounded-xl border-none cursor-pointer font-sans text-sm font-medium tracking-[0.05em] text-[#09090b] bg-gradient-to-br from-[#fbcfe8] to-[#f472b6] flex items-center justify-center gap-2 transition-all hover:opacity-88 active:scale-98 relative overflow-hidden after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/8 after:to-transparent after:pointer-events-none" onClick={handleNextStep}>
+                  Lanjut <ArrowRight size={16} />
+                </button>
+              </div>
 
-                {/* Amount */}
-                <div className="vb-card" style={{ display:'flex', flexDirection:'column', gap:20 }}>
-                  <p className="vb-slabel">Nominal</p>
-                  <div>
-                    <div className="vb-amount-wrap">
-                      <span className="vb-amount-prefix">Rp</span>
-                      <input
-                        className="vb-amount-input" type="text" inputMode="numeric"
-                        placeholder="0" value={amount} onChange={handleAmountChange}
-                      />
+              <div>
+                <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-5 flex items-center gap-1.5">
+                  <Clock size={12} /> Riwayat penerima
+                </p>
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                  {recipientHistory.map((c,i) => (
+                    <div key={i} className="flex items-center gap-3 bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-2xl p-3.5 cursor-pointer transition-all hover:bg-zinc-50 dark:hover:bg-white/8 hover:border-pink-500/25 dark:hover:border-[#fbcfe8]/25 active:scale-97 shadow-sm dark:shadow-none" onClick={() => handleSelectHistory(c)}>
+                      <div className="w-[38px] h-[38px] rounded-[10px] flex-shrink-0 bg-zinc-100 dark:bg-white/8 flex items-center justify-center font-bold text-xs text-zinc-500 dark:text-white/60">{c.initial}</div>
+                      <div>
+                        <p className="text-[13px] font-medium text-zinc-800 dark:text-white leading-normal">{c.name}</p>
+                        <p className="text-[11px] font-mono text-zinc-400 dark:text-white/30 mt-0.5">{c.accNo}</p>
+                      </div>
                     </div>
-                    {amount && parseInt(amount,10) > 0 && (
-                      <p className="vb-amount-hint">≈ Rp {parseInt(amount,10).toLocaleString('id-ID')}</p>
-                    )}
-                  </div>
-                  <div className="vb-chips">
-                    {amountShortcuts.map(v => (
-                      <button key={v} className="vb-chip" onClick={() => handleAddAmount(v)}>
-                        +{v>=1000000?`${v/1000000}jt`:`${v/1000}k`}
-                      </button>
-                    ))}
-                  </div>
-                  <button className="vb-btn" onClick={handleNextStep} style={{ marginTop:'auto' }}>
-                    Lanjut ke Konfirmasi <ArrowRight size={16} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3 */}
-            {step === 3 && (
-              <div className="vb-two-col-even" style={{ animation:'vb-fade-up .35s ease both' }}>
-                {/* Detail */}
-                <div className="vb-card">
-                  <p className="vb-slabel">Ringkasan transaksi</p>
-                  <div className="vb-confirm-row"><span className="label">Pemilik rekening</span><span className="value">{recipientName}</span></div>
-                  <div className="vb-confirm-row"><span className="label">No. rekening tujuan</span><span className="value mono">{accountNumber}</span></div>
-                  <div className="vb-confirm-row"><span className="label">Catatan</span><span className="value">{note||'—'}</span></div>
-                  <div className="vb-confirm-row"><span className="label">Biaya admin</span><span className="value green">Gratis</span></div>
-                </div>
-
-                {/* Summary + CTA */}
-                <div className="vb-card" style={{ display:'flex', flexDirection:'column', gap:20 }}>
-                  <p className="vb-slabel">Total nominal</p>
-                  <div style={{ textAlign:'center', padding:'8px 0' }}>
-                    <p style={{ fontSize:11, letterSpacing:'.12em', textTransform:'uppercase', color: '#fbcfe8', marginBottom:8 }}>Anda akan mentransfer</p>
-                    <p style={{ fontFamily:'Syne,sans-serif', fontSize:34, fontWeight:800, color:'#ffffff' }}>
-                      Rp {parseInt(amount,10).toLocaleString('id-ID')}
-                    </p>
-                  </div>
-                  <div className="vb-disclaimer">
-                    Pastikan semua informasi sudah benar. Transaksi yang telah diproses tidak dapat dibatalkan.
-                  </div>
-                  <button className="vb-btn" onClick={handleNextStep} style={{ marginTop:'auto' }}>
-                    Transfer Sekarang
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 4 — Success */}
-            {step === 4 && (
-              <div style={{ animation:'vb-scale-in .5s cubic-bezier(.22,1,.36,1) both', maxWidth:480, margin:'0 auto', width:'100%' }}>
-                <div className="vb-card" style={{ textAlign:'center' }}>
-                  <div className="vb-success-icon">
-                    <CheckCircle2 size={32} color="#10b981" strokeWidth={1.75} />
-                  </div>
-                  <h2 className="vb-success-title">Transfer Berhasil</h2>
-                  <p className="vb-success-sub">Transaksi Anda telah sukses diproses oleh VoiceBank</p>
-
-                  <div className="vb-success-receipt">
-                    <p className="vb-ref">REF: TX-910283019</p>
-                    <p className="vb-total-label">Total Transfer</p>
-                    <p className="vb-total-amount">Rp {parseInt(amount,10).toLocaleString('id-ID')}</p>
-                    <div className="vb-confirm-row"><span className="label">Penerima</span><span className="value">{recipientName}</span></div>
-                    <div className="vb-confirm-row"><span className="label">No. rekening</span><span className="value mono">{accountNumber}</span></div>
-                    <div className="vb-confirm-row" style={{ borderBottom:'none' }}><span className="label">Catatan</span><span className="value">{note||'—'}</span></div>
-                  </div>
-
-                  <button className="vb-btn" onClick={handleReset}>
-                    Transfer Lagi
-                  </button>
-                  <button className="vb-btn-ghost" onClick={() => navigate('/dashboard')} style={{ marginTop:10 }}>
-                    Kembali ke Dashboard
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ══════════════════════════════════════════════ */}
-        {/* VOICE FLOW                                     */}
-        {/* ══════════════════════════════════════════════ */}
-        {voiceEnabled && (
-          <div className="vb-voice-panel">
-            <div className="vb-voice-inner">
-              {/* Mic side */}
-              <div className="vb-voice-left">
-                <div className="vb-mic-wrap">
-                  {isListening && (
-                    <>
-                      <div className="vb-mic-ping" />
-                      <div className="vb-mic-ring" />
-                    </>
-                  )}
-                  <button
-                    className={`vb-mic-btn ${isListening ? 'active' : 'idle'}`}
-                    onClick={() => setIsListening(p => !p)}
-                    aria-label={isListening ? 'Hentikan' : 'Mulai perintah suara'}
-                  >
-                    <Mic size={30} color={isListening ? '#09090b' : 'rgba(251,207,232,.8)'} strokeWidth={1.75} />
-                  </button>
-                </div>
-
-                {isListening
-                  ? <div className="vb-wave-row">{[1,2,3,4,5,6,7].map(i=><div key={i} className="vb-wbar"/>)}</div>
-                  : <p style={{ fontSize:12, color: '#fbcfe8', marginTop:12, textAlign:'center' }}>
-                      Ketuk untuk mulai
-                    </p>
-                }
-              </div>
-
-              {/* Text side */}
-              <div className="vb-voice-right">
-                <div>
-                  <p className="vb-slabel">Asisten suara</p>
-                  <p style={{ fontSize:13, color:'rgba(255,255,255,0.4)', lineHeight:1.7 }}>
-                    Tekan tombol mikrofon dan ucapkan nama penerima atau nomor rekening untuk transfer cepat.
-                  </p>
-                </div>
-
-                <div className="vb-transcript">
-                  <p className={isListening ? 'live' : ''}>
-                    {isListening
-                      ? voiceText || 'Mendengarkan…'
-                      : 'Silakan tekan tombol Mic untuk mulai berbicara…'}
-                  </p>
-                </div>
-
-                <div className="vb-tips">
-                  <p className="vb-tips-title">Contoh perintah</p>
-                  <ul>
-                    <li>"Kirim ke Budi Santoso"</li>
-                    <li>"Transfer ke nomor delapan dua sembilan tiga…"</li>
-                    <li>Pastikan mikrofon perangkat memiliki izin aktif</li>
-                  </ul>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-      </div>
+          {/* STEP 2 */}
+          {step === 2 && (
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[5fr_7fr] animate-fade-up">
+              {/* Recipient info */}
+              <div className="shadow-md dark:shadow-none bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/8 rounded-[20px] p-7 flex flex-col gap-5">
+                <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-0">Penerima</p>
+                <div className="flex items-center gap-3.5 pb-5 border-b border-zinc-100 dark:border-white/8">
+                  <div className="w-[52px] h-[52px] rounded-[16px] flex-shrink-0 bg-pink-500/10 border border-pink-500/20 text-pink-600 dark:bg-[#fbcfe8]/10 dark:border-[#fbcfe8]/18 dark:text-[#f9a8d4] font-syne text-sm font-extrabold">{initials(recipientName)}</div>
+                  <div>
+                    <p className="text-[15px] font-medium text-zinc-800 dark:text-white mb-1">{recipientName}</p>
+                    <p className="text-xs font-mono text-pink-500 dark:text-[#fbcfe8]">{accountNumber}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5 flex-1">
+                  <label className="text-[11px] font-medium tracking-[0.10em] uppercase text-zinc-400 dark:text-white/30 pl-0.5">Catatan (opsional)</label>
+                  <input
+                    className="w-full bg-zinc-50 border border-zinc-200 dark:bg-white/4 dark:border-white/8 rounded-xl px-4 py-3.5 font-sans text-sm text-zinc-900 dark:text-white outline-none transition-all placeholder-zinc-400 dark:placeholder-white/20 hover:border-zinc-300 dark:hover:border-white/20 focus:border-pink-500/55 dark:focus:border-[#fbcfe8]/55 focus:bg-pink-50/20 dark:focus:bg-[#fbcfe8]/4" type="text"
+                    value={note} onChange={e => setNote(e.target.value)}
+                    placeholder="Tulis keterangan transfer"
+                  />
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div className="shadow-md dark:shadow-none bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/8 rounded-[20px] p-7 flex flex-col gap-5">
+                <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-0">Nominal</p>
+                <div>
+                  <div className="flex items-center gap-0 bg-zinc-50 border border-zinc-200 dark:bg-white/4 dark:border-white/8 rounded-xl overflow-hidden transition-colors focus-within:border-pink-500/55 dark:focus-within:border-[#fbcfe8]/55">
+                    <span className="px-4 font-syne text-base font-bold text-zinc-400 dark:text-white/30 border-r border-zinc-200 dark:border-white/8 white-space-nowrap user-select-none align-self-stretch flex items-center">Rp</span>
+                    <input
+                      className="flex-1 bg-transparent border-none outline-none py-4.5 px-4 font-mono text-[28px] font-medium text-zinc-800 dark:text-white placeholder-zinc-300 dark:placeholder-white/12 min-w-0" type="text" inputMode="numeric"
+                      placeholder="0" value={amount} onChange={handleAmountChange}
+                    />
+                  </div>
+                  {amount && parseInt(amount,10) > 0 && (
+                    <p className="text-xs text-zinc-400 dark:text-white/30 pl-1 mt-0.5 animate-fade-in">≈ Rp {parseInt(amount,10).toLocaleString('id-ID')}</p>
+                  )}
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {amountShortcuts.map(v => (
+                    <button key={v} className="bg-white border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 hover:border-zinc-300 dark:bg-[#18181b] dark:border-white/8 rounded-[10px] py-2.5 px-1.5 text-xs font-medium dark:text-white/50 cursor-pointer text-center transition-all dark:hover:bg-white/8 dark:hover:text-white dark:hover:border-white/20 active:scale-96 shadow-sm dark:shadow-none" onClick={() => handleAddAmount(v)}>
+                      +{v>=1000000?`${v/1000000}jt`:`${v/1000}k`}
+                    </button>
+                  ))}
+                </div>
+                <button className="w-full p-[15px] rounded-xl border-none cursor-pointer font-sans text-sm font-medium tracking-[0.05em] text-[#09090b] bg-gradient-to-br from-[#fbcfe8] to-[#f472b6] flex items-center justify-center gap-2 transition-all hover:opacity-88 active:scale-98 relative overflow-hidden after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/8 after:to-transparent after:pointer-events-none mt-auto" onClick={handleNextStep}>
+                  Lanjut ke Konfirmasi <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3 */}
+          {step === 3 && (
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[7fr_5fr] animate-fade-up">
+              {/* Detail */}
+              <div className="shadow-md dark:shadow-none bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/8 rounded-[20px] p-7">
+                <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-5">Ringkasan transaksi</p>
+                <div className="flex justify-between items-center py-3.5 border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 text-xs"><span className="text-zinc-400 dark:text-white/40">Pemilik rekening</span><span className="text-zinc-800 dark:text-white font-medium text-right">{recipientName}</span></div>
+                <div className="flex justify-between items-center py-3.5 border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 text-xs"><span className="text-zinc-400 dark:text-white/40">No. rekening tujuan</span><span className="text-zinc-800 dark:text-white font-medium text-right font-mono text-xs">{accountNumber}</span></div>
+                <div className="flex justify-between items-center py-3.5 border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 text-xs"><span className="text-zinc-400 dark:text-white/40">Catatan</span><span className="text-zinc-800 dark:text-white font-medium text-right">{note||'—'}</span></div>
+                <div className="flex justify-between items-center py-3.5 border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 text-xs"><span className="text-zinc-400 dark:text-white/40">Biaya admin</span><span className="text-emerald-600 dark:text-emerald-500 font-semibold text-right">Gratis</span></div>
+              </div>
+
+              {/* Summary + CTA */}
+              <div className="shadow-md dark:shadow-none bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/8 rounded-[20px] p-7 flex flex-col gap-5">
+                <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-0">Total nominal</p>
+                <div className="text-center py-2">
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-pink-600 dark:text-[#fbcfe8] mb-2">Anda akan mentransfer</p>
+                  <p className="font-syne text-[34px] font-extrabold text-zinc-800 dark:text-white leading-none">
+                    Rp {parseInt(amount,10).toLocaleString('id-ID')}
+                  </p>
+                </div>
+                <div className="bg-zinc-50 border border-zinc-200 text-zinc-500 dark:bg-white/4 dark:border-white/8 rounded-xl p-3.5 px-4 text-xs dark:text-white/30 leading-relaxed">
+                  Pastikan semua informasi sudah benar. Transaksi yang telah diproses tidak dapat dibatalkan.
+                </div>
+                <button className="w-full p-[15px] rounded-xl border-none cursor-pointer font-sans text-sm font-medium tracking-[0.05em] text-[#09090b] bg-gradient-to-br from-[#fbcfe8] to-[#f472b6] flex items-center justify-center gap-2 transition-all hover:opacity-88 active:scale-98 relative overflow-hidden after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/8 after:to-transparent after:pointer-events-none mt-auto" onClick={handleNextStep}>
+                  Transfer Sekarang
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4 — Success */}
+          {step === 4 && (
+            <div className="animate-scale-in max-w-[480px] mx-auto w-full">
+              <div className="shadow-md dark:shadow-none bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/8 rounded-[20px] p-7 text-center">
+                <div className="w-[72px] h-[72px] rounded-[22px] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 size={32} color="#10b981" strokeWidth={1.75} />
+                </div>
+                <h2 className="font-syne text-24 font-extrabold text-zinc-800 dark:text-white mb-1.5">Transfer Berhasil</h2>
+                <p className="text-xs text-zinc-500 dark:text-white/40 mb-7">Transaksi Anda telah sukses diproses oleh VoiceBank</p>
+
+                <div className="bg-zinc-50 border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-2xl p-5 px-6 mb-6 text-left shadow-sm dark:shadow-none">
+                  <p className="font-mono text-[11px] text-zinc-400 border-zinc-200 dark:text-white/30 tracking-[0.08em] mb-4 pb-3 border-b dark:border-b-white/8">REF: TX-910283019</p>
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-400 dark:text-white/30 mb-1">Total Transfer</p>
+                  <p className="font-syne text-[28px] font-extrabold text-zinc-800 dark:text-white mb-5">Rp {parseInt(amount,10).toLocaleString('id-ID')}</p>
+                  <div className="flex justify-between items-center py-3.5 border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 text-xs"><span className="text-zinc-400 dark:text-white/40">Penerima</span><span className="text-zinc-800 dark:text-white font-medium text-right">{recipientName}</span></div>
+                  <div className="flex justify-between items-center py-3.5 border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 text-xs"><span className="text-zinc-400 dark:text-white/40">No. rekening</span><span className="text-zinc-800 dark:text-white font-medium text-right font-mono text-xs">{accountNumber}</span></div>
+                  <div className="flex justify-between items-center py-3.5 border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 text-xs" style={{ borderBottom:'none' }}><span className="text-zinc-400 dark:text-white/40">Catatan</span><span className="text-zinc-800 dark:text-white font-medium text-right">{note||'—'}</span></div>
+                </div>
+
+                <button className="w-full p-[15px] rounded-xl border-none cursor-pointer font-sans text-sm font-medium tracking-[0.05em] text-[#09090b] bg-gradient-to-br from-[#fbcfe8] to-[#f472b6] flex items-center justify-center gap-2 transition-all hover:opacity-88 active:scale-98 relative overflow-hidden after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/8 after:to-transparent after:pointer-events-none" onClick={handleReset}>
+                  Transfer Lagi
+                </button>
+                <button className="w-full p-3.5 rounded-xl border border-zinc-200 dark:border-white/8 bg-white dark:bg-[#18181b] cursor-pointer font-sans text-sm font-medium text-zinc-600 dark:text-white/60 transition-all hover:bg-zinc-50 hover:text-zinc-800 dark:hover:bg-white/8 dark:hover:text-white active:scale-98 mt-2.5 shadow-sm dark:shadow-none" onClick={() => navigate('/dashboard')}>
+                  Kembali ke Dashboard
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ══════════════════════════════════════════════ */}
+      {/* VOICE FLOW                                     */}
+      {/* ══════════════════════════════════════════════ */}
+      {voiceEnabled && (
+        <div className="bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-[20px] overflow-hidden animate-fade-in shadow-md dark:shadow-none">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+            {/* Mic side */}
+            <div className="flex flex-col items-center justify-center p-12 px-7 border-b border-zinc-100 dark:border-white/8 md:border-b-0 md:border-r border-zinc-100 dark:md:border-r-white/8">
+              <div className="relative mb-5">
+                {isListening && (
+                  <>
+                    <div className="absolute inset-[-14px] rounded-full bg-pink-500/15 dark:bg-[#fbcfe8]/15 animate-ping" />
+                    <div className="absolute inset-[-7px] rounded-full border border-pink-500/15 dark:border-[#fbcfe8]/15 animate-ping" />
+                  </>
+                )}
+                <button
+                  className={`relative z-10 w-[88px] h-[88px] rounded-full flex items-center justify-center cursor-pointer border-none transition-all hover:scale-106 active:scale-97 ${isListening ? 'bg-[#fbcfe8] shadow-[0_0_32px_rgba(251,207,232,.4)]' : 'bg-zinc-100 border border-zinc-200 dark:bg-white/4 dark:border-white/12'}`}
+                  onClick={() => setIsListening(p => !p)}
+                  aria-label={isListening ? 'Hentikan' : 'Mulai perintah suara'}
+                >
+                  <Mic size={30} color={isListening ? '#09090b' : (theme === 'dark' ? 'rgba(251,207,232,.8)' : '#ec4899')} strokeWidth={1.75} />
+                </button>
+              </div>
+
+              {isListening
+                ? (
+                  <div className="flex items-center gap-1 h-7">
+                    <div className="w-[3px] rounded-full bg-pink-500/70 dark:bg-[#fbcfe8]/70 h-2 animate-wave" />
+                    <div className="w-[3px] rounded-full bg-pink-500/70 dark:bg-[#fbcfe8]/70 h-4.5 animate-[wave_0.9s_0.1s_ease-in-out_infinite]" />
+                    <div className="w-[3px] rounded-full bg-pink-500/70 dark:bg-[#fbcfe8]/70 h-6 animate-[wave_0.9s_0.2s_ease-in-out_infinite]" />
+                    <div className="w-[3px] rounded-full bg-pink-500/70 dark:bg-[#fbcfe8]/70 h-3.5 animate-[wave_0.9s_0.3s_ease-in-out_infinite]" />
+                    <div className="w-[3px] rounded-full bg-pink-500/70 dark:bg-[#fbcfe8]/70 h-5.5 animate-[wave_0.9s_0.15s_ease-in-out_infinite]" />
+                    <div className="w-[3px] rounded-full bg-pink-500/70 dark:bg-[#fbcfe8]/70 h-2.5 animate-[wave_0.9s_0.25s_ease-in-out_infinite]" />
+                    <div className="w-[3px] rounded-full bg-pink-500/70 dark:bg-[#fbcfe8]/70 h-4 animate-[wave_0.9s_0.05s_ease-in-out_infinite]" />
+                  </div>
+                )
+                : <p className="text-xs text-pink-600 dark:text-[#fbcfe8] mt-3 text-center">
+                    Ketuk untuk mulai
+                  </p>
+              }
+            </div>
+
+            {/* Text side */}
+            <div className="p-10 px-8 flex flex-col gap-5">
+              <div>
+                <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-5">Asisten suara</p>
+                <p className="text-sm text-zinc-500 dark:text-white/40 leading-relaxed">
+                  Tekan tombol mikrofon dan ucapkan nama penerima atau nomor rekening untuk transfer cepat.
+                </p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-xl p-4 min-h-[64px] flex items-center">
+                <p className={`text-sm italic leading-normal ${isListening ? 'text-zinc-800 dark:text-white not-italic' : 'text-zinc-400 dark:text-white/30'}`}>
+                  {isListening
+                    ? voiceText || 'Mendengarkan…'
+                    : 'Silakan tekan tombol Mic untuk mulai berbicara…'}
+                </p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200 dark:bg-white/4 dark:border-white/8 rounded-xl p-4">
+                <p className="text-[11px] font-medium tracking-[0.12em] uppercase text-zinc-400 dark:text-white/30 mb-2.5">Contoh perintah</p>
+                <ul className="pl-0 list-none flex flex-col gap-2">
+                  <li className="text-xs text-zinc-500 dark:text-white/40 leading-normal pl-3.5 relative before:absolute before:left-0 before:top-[7px] before:w-1 before:h-1 before:rounded-full before:bg-pink-500/50 dark:before:bg-[#fbcfe8]/50">"Kirim ke Budi Santoso"</li>
+                  <li className="text-xs text-zinc-500 dark:text-white/40 leading-normal pl-3.5 relative before:absolute before:left-0 before:top-[7px] before:w-1 before:h-1 before:rounded-full before:bg-pink-500/50 dark:before:bg-[#fbcfe8]/50">"Transfer ke nomor delapan dua sembilan tiga…"</li>
+                  <li className="text-xs text-zinc-500 dark:text-white/40 leading-normal pl-3.5 relative before:absolute before:left-0 before:top-[7px] before:w-1 before:h-1 before:rounded-full before:bg-pink-500/50 dark:before:bg-[#fbcfe8]/50">Pastikan mikrofon perangkat memiliki izin aktif</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

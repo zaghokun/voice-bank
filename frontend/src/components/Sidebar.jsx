@@ -1,207 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Home, Send, Clock, Bell, User, LogOut, Mic } from "lucide-react";
+import { Home, Send, Clock, User, LogOut, Mic } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-
-/* ─── Styles ─── */
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap');
-
-  @keyframes sb-fade-in {
-    from { opacity: 0; transform: translateX(-12px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-
-  .sb-root * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .sb-aside {
-    font-family: 'DM Sans', sans-serif;
-    width: 240px;
-    height: 100%;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    background: #09090b;
-    border-right: 1px solid rgba(255,255,255,0.08);
-    position: relative;
-    z-index: 20;
-    animation: sb-fade-in 0.4s cubic-bezier(.22,1,.36,1) both;
-  }
-
-  /* subtle red ambient top-left */
-  .sb-aside::before {
-    content: '';
-    position: absolute;
-    top: -40px; left: -40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(251,207,232,0.07) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  /* ── Brand ── */
-  .sb-brand {
-    height: 80px;
-    display: flex; align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    flex-shrink: 0;
-    gap: 12px;
-  }
-  .sb-brand-icon {
-    width: 36px; height: 36px; border-radius: 11px;
-    background: #fbcfe8;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(251,207,232,0.3);
-  }
-  .sb-brand-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 17px; font-weight: 800;
-    color: #ffffff; letter-spacing: 0.04em;
-  }
-  .sb-brand-name span { color: #fbcfe8; }
-
-  /* ── Nav ── */
-  .sb-nav {
-    flex: 1;
-    padding: 20px 12px;
-    display: flex; flex-direction: column; gap: 4px;
-    overflow-y: auto;
-  }
-  .sb-nav::-webkit-scrollbar { width: 0; }
-
-  .sb-nav-label {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.2);
-    padding: 0 8px; margin: 8px 0 6px;
-  }
-
-  .sb-link {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 12px; border-radius: 12px;
-    font-size: 13px; font-weight: 500;
-    color: rgba(255,255,255,0.4);
-    border: 1px solid transparent;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
-    position: relative;
-    cursor: pointer;
-  }
-  .sb-link:hover {
-    background: rgba(255,255,255,0.04);
-    color: #ffffff;
-  }
-  .sb-link.active {
-    background: rgba(251,207,232,0.10);
-    border-color: rgba(251,207,232,0.20);
-    color: #f9a8d4;
-  }
-  .sb-link-icon {
-    width: 32px; height: 32px; border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    background: rgba(255,255,255,0.04);
-    transition: background 0.2s;
-  }
-  .sb-link.active .sb-link-icon {
-    background: rgba(251,207,232,0.15);
-  }
-  .sb-link:hover .sb-link-icon {
-    background: rgba(255,255,255,0.08);
-  }
-  /* active left accent bar */
-  .sb-link.active::before {
-    content: '';
-    position: absolute; left: -12px; top: 50%;
-    transform: translateY(-50%);
-    width: 3px; height: 18px; border-radius: 0 3px 3px 0;
-    background: #fbcfe8;
-  }
-
-  /* ── User strip ── */
-  .sb-user {
-    margin: 0 12px 16px;
-    background: #18181b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    padding: 12px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .sb-user-avatar {
-    width: 34px; height: 34px; border-radius: 10px;
-    background: rgba(251,207,232,0.15);
-    border: 1px solid rgba(251,207,232,0.2);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; color: #f9a8d4;
-  }
-  .sb-user-name {
-    font-size: 13px; font-weight: 500;
-    color: #ffffff;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    flex: 1;
-  }
-  .sb-user-role {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.3); margin-top: 1px;
-  }
-
-  /* ── Logout ── */
-  .sb-footer {
-    padding: 0 12px 20px;
-    flex-shrink: 0;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-top: 16px;
-  }
-  .sb-logout {
-    width: 100%;
-    display: flex; align-items: center; gap: 10px;
-    padding: 11px 14px; border-radius: 12px;
-    font-size: 13px; font-weight: 500;
-    color: rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .sb-logout:hover {
-    background: rgba(251,207,232,0.10);
-    border-color: rgba(251,207,232,0.20);
-    color: #f9a8d4;
-  }
-  .sb-logout:active { transform: scale(0.98); }
-  .sb-logout-icon {
-    width: 28px; height: 28px; border-radius: 8px;
-    background: rgba(255,255,255,0.04);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: background 0.2s;
-  }
-  .sb-logout:hover .sb-logout-icon { background: rgba(251,207,232,0.15); }
-  
-  /* ── Responsive Mobile (Bottom Nav) ── */
-  @media (max-width: 768px) {
-    .sb-aside {
-      width: 100%; height: auto; flex-direction: row;
-      border-right: none; border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 8px; justify-content: space-around;
-      z-index: 50;
-    }
-    .sb-brand, .sb-nav-label, .sb-footer, .sb-user { display: none !important; }
-    .sb-nav {
-      flex-direction: row; justify-content: space-around;
-      align-items: center; width: 100%; padding: 0;
-    }
-    .sb-link {
-      flex-direction: column; gap: 4px; padding: 4px 12px; font-size: 10px;
-    }
-    .sb-link.active::before { display: none; }
-    .sb-link-icon { width: 28px; height: 28px; }
-  }
-`;
-
-function StyleTag() {
-  return <style dangerouslySetInnerHTML={{ __html: styles }} />;
-}
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", Icon: Home },
@@ -224,48 +23,68 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="sb-root">
-      <StyleTag />
-      <aside className="sb-aside">
-        {/* Brand */}
-        <div className="sb-brand">
-          <div className="sb-brand-icon">
-            <Mic size={18} color="#09090b" strokeWidth={1.75} />
+    <aside className="font-sans w-[240px] h-full flex-shrink-0 flex flex-col bg-white dark:bg-[#09090b] border-r border-zinc-200 dark:border-white/8 relative z-20 animate-fade-up max-md:w-full max-md:h-auto max-md:flex-row max-md:border-r-0 max-md:border-t max-md:border-zinc-200 dark:max-md:border-white/8 max-md:p-2 max-md:justify-around max-md:z-50 selection:bg-[#fbcfe8]/30 before:absolute before:-top-10 before:-left-10 before:w-[200px] before:h-[200px] before:rounded-full before:bg-[radial-gradient(circle,rgba(251,207,232,0.07)_0%,transparent_70%)] before:pointer-events-none max-md:before:hidden">
+      {/* Brand */}
+      <div className="h-20 flex items-center px-5 border-b border-zinc-200 dark:border-white/8 flex-shrink-0 gap-3 max-md:hidden">
+        <div className="w-9 h-9 rounded-[11px] bg-pink-500/10 dark:bg-[#fbcfe8] flex items-center justify-center flex-shrink-0 shadow-[0_4px_16px_rgba(236,72,153,0.15)] dark:shadow-[0_4px_16px_rgba(251,207,232,0.3)]">
+          <Mic size={18} className="text-pink-600 dark:text-[#09090b]" strokeWidth={1.75} />
+        </div>
+        <span className="font-syne text-[17px] font-extrabold text-zinc-800 dark:text-white tracking-[0.04em]">
+          Voice<span className="text-pink-500 dark:text-[#fbcfe8]">Bank</span>
+        </span>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 py-5 px-3 flex flex-col gap-1 overflow-y-auto no-scrollbar max-md:flex-row max-md:justify-around max-md:items-center max-md:w-full max-md:p-0">
+        <p className="text-[10px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/20 px-2 my-2 mb-1.5 max-md:hidden">Menu</p>
+        {NAV_ITEMS.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `group flex items-center gap-3 py-[11px] px-3 rounded-xl text-[13px] font-medium transition-all duration-200 relative cursor-pointer border max-md:flex-col max-md:gap-1 max-md:p-1 max-md:px-3 max-md:text-[10px] ${
+                isActive
+                  ? "bg-pink-50 border-pink-100 text-pink-600 before:absolute before:-left-3 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-[18px] before:rounded-r-[3px] before:bg-pink-500 dark:bg-[#fbcfe8]/10 dark:border-[#fbcfe8]/20 dark:text-[#f9a8d4] dark:before:bg-[#fbcfe8] max-md:before:hidden"
+                  : "text-zinc-500 border-transparent hover:bg-zinc-100/50 hover:text-zinc-800 dark:text-white/40 dark:hover:bg-white/4 dark:hover:text-white"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <div
+                  className={`w-8 h-8 rounded-[9px] flex items-center justify-center flex-shrink-0 transition-colors max-md:w-7 max-md:h-7 ${
+                    isActive ? "bg-pink-500/10 dark:bg-[#fbcfe8]/15" : "bg-zinc-100 dark:bg-white/4 group-hover:bg-zinc-200/80 dark:group-hover:bg-white/8"
+                  }`}
+                >
+                  <Icon size={15} strokeWidth={1.75} />
+                </div>
+                {label}
+              </>
+            )}
+          </NavLink>
+        ))}
+
+        {/* Logout Button (Mobile Only) */}
+        <button
+          onClick={handleLogout}
+          className="group flex items-center gap-3 py-[11px] px-3 rounded-xl text-[13px] font-medium transition-all duration-200 relative cursor-pointer border text-zinc-500 border-transparent hover:bg-zinc-100/50 hover:text-zinc-800 dark:text-white/40 dark:hover:bg-white/4 dark:hover:text-white md:hidden max-md:flex max-md:flex-col max-md:gap-1 max-md:p-1 max-md:px-3 max-md:text-[10px] active:scale-95"
+        >
+          <div className="w-8 h-8 rounded-[9px] flex items-center justify-center flex-shrink-0 transition-colors max-md:w-7 max-md:h-7 bg-zinc-100 dark:bg-white/4 group-hover:bg-zinc-200/80 dark:group-hover:bg-white/8">
+            <LogOut size={15} strokeWidth={1.75} />
           </div>
-          <span className="sb-brand-name">
-            Voice<span>Bank</span>
-          </span>
-        </div>
+          Keluar
+        </button>
+      </nav>
 
-        {/* Nav */}
-        <nav className="sb-nav">
-          <p className="sb-nav-label">Menu</p>
-          {NAV_ITEMS.map(({ to, label, Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `sb-link${isActive ? " active" : ""}`
-              }
-            >
-              <div className="sb-link-icon">
-                <Icon size={15} strokeWidth={1.75} />
-              </div>
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Footer / logout */}
-        <div className="sb-footer">
-          <button className="sb-logout" onClick={handleLogout}>
-            <div className="sb-logout-icon">
-              <LogOut size={14} strokeWidth={1.75} />
-            </div>
-            Keluar
-          </button>
-        </div>
-      </aside>
-    </div>
+      {/* Footer / logout */}
+      <div className="px-3 pb-5 flex-shrink-0 border-t border-zinc-200 dark:border-white/8 pt-4 max-md:hidden">
+        <button className="group w-full flex items-center gap-2.5 py-[11px] px-3.5 rounded-xl text-[13px] font-medium text-zinc-600 bg-zinc-100/50 border border-zinc-200 cursor-pointer transition-all duration-200 font-sans hover:bg-pink-500/5 hover:border-pink-500/20 hover:text-pink-600 dark:text-white/30 dark:bg-white/4 dark:border-white/8 dark:hover:bg-[#fbcfe8]/10 dark:hover:border-[#fbcfe8]/20 dark:hover:text-[#f9a8d4] active:scale-98" onClick={handleLogout}>
+          <div className="w-7 h-7 rounded-lg bg-zinc-200/50 dark:bg-white/4 flex items-center justify-center flex-shrink-0 transition-colors group-hover:bg-pink-500/10 dark:group-hover:bg-[#fbcfe8]/15">
+            <LogOut size={14} strokeWidth={1.75} />
+          </div>
+          Keluar
+        </button>
+      </div>
+    </aside>
   );
 }

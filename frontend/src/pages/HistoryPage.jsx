@@ -9,208 +9,6 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-/* ─── Styles ─── */
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap');
-
-  @keyframes hv-fade-up {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .hv-root * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .hv-page {
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100svh;
-    background: #09090b;
-    background-image:
-      radial-gradient(ellipse 70% 50% at 20% -5%, rgba(29,78,216,0.09) 0%, transparent 65%),
-      radial-gradient(ellipse 50% 40% at 85% 85%, rgba(29,78,216,0.05) 0%, transparent 60%);
-    color: #ffffff;
-    padding: 28px 24px 48px;
-    animation: hv-fade-up 0.45s cubic-bezier(.22,1,.36,1) both;
-  }
-
-  /* ── Top bar ── */
-  .hv-topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  .hv-topbar-left { display: flex; flex-direction: column; gap: 4px; }
-  .hv-section-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-  }
-  .hv-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 22px; font-weight: 800; letter-spacing: 0.03em;
-  }
-  .hv-title span { color: #fbcfe8; }
-  .hv-back-btn {
-    width: 40px; height: 40px; border-radius: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.2s, color 0.2s;
-    color: rgba(255,255,255,0.4);
-  }
-  .hv-back-btn:hover { background: rgba(255,255,255,0.08); color: #ffffff; }
-
-  /* ── Summary strip ── */
-  .hv-summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  @media (max-width: 480px) {
-    .hv-summary { grid-template-columns: 1fr; }
-  }
-  .hv-sum-card {
-    background: #18181b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 16px;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .hv-sum-label {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-  }
-  .hv-sum-val {
-    font-family: 'Syne', sans-serif;
-    font-size: 16px; font-weight: 700;
-  }
-  .hv-sum-val.neutral { color: #ffffff; }
-  .hv-sum-val.income  { color: #10b981; }
-  .hv-sum-val.expense { color: #f9a8d4; }
-
-  /* ── Filter bar ── */
-  .hv-filter {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 20px; flex-wrap: wrap;
-  }
-  .hv-filter-group {
-    display: flex; align-items: center; gap: 8px;
-    background: #18181b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 9px 14px;
-    flex: 1; min-width: 160px;
-    transition: border-color 0.2s;
-  }
-  .hv-filter-group:focus-within { border-color: rgba(251,207,232,0.4); }
-  .hv-filter-icon { color: rgba(255,255,255,0.3); flex-shrink: 0; }
-  .hv-filter-group input[type="date"] {
-    background: transparent; border: none; outline: none;
-    color: #ffffff;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px; width: 100%; cursor: pointer;
-    color-scheme: dark;
-  }
-  .hv-filter-sep { color: rgba(255,255,255,0.2); font-size: 13px; flex-shrink: 0; }
-  .hv-clear-btn {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: rgba(251,207,232,0.08);
-    border: 1px solid rgba(251,207,232,0.15);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: #f9a8d4; flex-shrink: 0;
-    transition: background 0.2s;
-  }
-  .hv-clear-btn:hover { background: rgba(251,207,232,0.18); }
-
-  /* ── Tabs ── */
-  .hv-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
-  .hv-tab {
-    padding: 7px 16px; border-radius: 10px;
-    font-size: 12px; font-weight: 500; letter-spacing: 0.02em;
-    cursor: pointer; border: 1px solid rgba(255,255,255,0.08);
-    background: #18181b; color: rgba(255,255,255,0.4);
-    transition: all 0.2s;
-  }
-  .hv-tab:hover:not(.active) { background: rgba(255,255,255,0.08); color: #ffffff; }
-  .hv-tab.active {
-    background: rgba(251,207,232,0.15);
-    border-color: rgba(251,207,232,0.25);
-    color: #f9a8d4;
-  }
-
-  /* ── Group ── */
-  .hv-group { margin-bottom: 20px; }
-  .hv-group-title {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-    margin-bottom: 10px; padding-left: 4px;
-  }
-
-  /* ── Transaction list ── */
-  .hv-tx-wrap {
-    background: #18181b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px; overflow: hidden;
-  }
-  .hv-tx-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 16px; cursor: pointer;
-    transition: background 0.2s;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .hv-tx-item:last-child { border-bottom: none; }
-  .hv-tx-item:hover { background: rgba(255,255,255,0.04); }
-
-  .hv-tx-left { display: flex; align-items: center; gap: 12px; }
-  .hv-tx-icon {
-    width: 38px; height: 38px; border-radius: 11px;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .hv-tx-icon.in      { background: rgba(74,222,128,0.09);  color: #10b981; }
-  .hv-tx-icon.out     { background: rgba(251,207,232,0.10);   color: #f9a8d4; }
-  .hv-tx-icon.payment { background: rgba(96,165,250,0.09);  color: #60a5fa; }
-
-  .hv-tx-name {
-    font-size: 13px; font-weight: 500;
-    color: #ffffff; margin-bottom: 2px;
-  }
-  .hv-tx-date {
-    font-size: 11px; color: rgba(255,255,255,0.3);
-    font-family: 'DM Mono', monospace; letter-spacing: 0.03em;
-  }
-
-  .hv-tx-right { text-align: right; }
-  .hv-tx-amount {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px; font-weight: 700;
-  }
-  .hv-tx-amount.in  { color: #10b981; }
-  .hv-tx-amount.out { color: rgba(255,255,255,0.65); }
-
-  .hv-tx-badge {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.06em;
-    padding: 2px 7px; border-radius: 6px; margin-top: 4px;
-    display: inline-block;
-  }
-  .hv-tx-badge.payment  { background: rgba(96,165,250,0.10);  color: #60a5fa; border: 1px solid rgba(96,165,250,0.15); }
-  .hv-tx-badge.topup    { background: rgba(74,222,128,0.08);  color: #10b981; border: 1px solid rgba(74,222,128,0.13); }
-  .hv-tx-badge.transfer { background: rgba(192,132,252,0.08); color: #c084fc; border: 1px solid rgba(192,132,252,0.13); }
-
-  /* ── Empty state ── */
-  .hv-empty {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 64px 24px;
-    color: rgba(255,255,255,0.2); gap: 12px; text-align: center;
-  }
-  .hv-empty p { font-size: 13px; }
-  .hv-empty-reset {
-    font-size: 12px; color: #f9a8d4; background: none;
-    border: none; cursor: pointer; margin-top: 4px; transition: color 0.15s;
-  }
-  .hv-empty-reset:hover { color: #fca5a5; }
-`;
-
-function StyleTag() {
-  return <style dangerouslySetInnerHTML={{ __html: styles }} />;
-}
-
 /* ─── Helpers ─── */
 const MONTHS = [
   "Januari",
@@ -257,18 +55,18 @@ function fmtRp(n) {
 function TxIcon({ type, category }) {
   if (type === "incoming")
     return (
-      <div className="hv-tx-icon in">
+      <div className="w-[38px] h-[38px] rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500">
         <Wallet size={16} strokeWidth={1.75} />
       </div>
     );
   if (category === "payment")
     return (
-      <div className="hv-tx-icon payment">
+      <div className="w-[38px] h-[38px] rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-500/10 text-blue-500 dark:text-blue-400">
         <CreditCard size={16} strokeWidth={1.75} />
       </div>
     );
   return (
-    <div className="hv-tx-icon out">
+    <div className="w-[38px] h-[38px] rounded-xl flex items-center justify-center flex-shrink-0 bg-pink-500/10 dark:bg-[#fbcfe8]/10 text-pink-600 dark:text-[#f9a8d4]">
       <ArrowUpRight size={16} strokeWidth={1.75} />
     </div>
   );
@@ -356,7 +154,6 @@ const TABS = [
   { key: "outgoing", label: "Keluar" },
 ];
 
-/* ─── Main Component ─── */
 export default function HistoryPage() {
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState("");
@@ -397,128 +194,126 @@ export default function HistoryPage() {
   const hasFilter = startDate || endDate;
 
   return (
-    <div className="hv-root">
-      <StyleTag />
-      <div className="hv-page">
-        {/* Top bar */}
-        <div className="hv-topbar">
-          <div className="hv-topbar-left">
-            <span className="hv-section-label">Rekening aktif</span>
-            <span className="hv-title">
-              Riwayat<span>.</span>
-            </span>
-          </div>
+    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#09090b] bg-[radial-gradient(ellipse_70%_50%_at_20%_-5%,rgba(99,102,241,0.05)_0%,transparent_65%),radial-gradient(ellipse_50%_40%_at_85%_85%,rgba(244,114,182,0.04)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_70%_50%_at_20%_-5%,rgba(29,78,216,0.09)_0%,transparent_65%),radial-gradient(ellipse_50%_40%_at_85%_85%,rgba(29,78,216,0.05)_0%,transparent_60%)] text-zinc-800 dark:text-white p-6 pb-12 animate-fade-up font-sans selection:bg-pink-500/10 dark:selection:bg-[#fbcfe8]/30">
+      
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-7">
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30">Rekening aktif</span>
+          <span className="font-syne text-[22px] font-extrabold tracking-[0.03em] text-zinc-800 dark:text-white">
+            Riwayat<span className="text-pink-500 dark:text-[#fbcfe8]">.</span>
+          </span>
+        </div>
+        <button
+          className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 dark:bg-white/4 dark:border-white/8 flex items-center justify-center cursor-pointer transition-colors dark:text-white/40 dark:hover:bg-white/8 dark:hover:text-white"
+          onClick={() => navigate(-1)}
+          aria-label="Kembali"
+        >
+          <ArrowLeft size={18} strokeWidth={1.75} />
+        </button>
+      </div>
+
+      {/* Summary strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-6">
+        <div className="bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-2xl p-4 flex flex-col gap-1.5 shadow-sm dark:shadow-none">
+          <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-zinc-400 dark:text-white/30">Total transaksi</span>
+          <span className="font-syne text-base font-bold text-zinc-800 dark:text-white">{filtered.length}</span>
+        </div>
+        <div className="bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-2xl p-4 flex flex-col gap-1.5 shadow-sm dark:shadow-none">
+          <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-zinc-400 dark:text-white/30">Total masuk</span>
+          <span className="font-syne text-base font-bold text-emerald-600 dark:text-emerald-500">{fmtRp(totalIn)}</span>
+        </div>
+        <div className="bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-2xl p-4 flex flex-col gap-1.5 shadow-sm dark:shadow-none">
+          <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-zinc-400 dark:text-white/30">Total keluar</span>
+          <span className="font-syne text-base font-bold text-pink-600 dark:text-[#f9a8d4]">{fmtRp(totalOut)}</span>
+        </div>
+      </div>
+
+      {/* Filter bar */}
+      <div className="flex items-center gap-2.5 mb-5 flex-wrap">
+        <div className="flex items-center gap-2 bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-xl px-3.5 py-2.5 flex-1 min-w-[160px] transition-colors focus-within:border-pink-500/40 dark:focus-within:border-[#fbcfe8]/40 shadow-sm dark:shadow-none">
+          <Calendar size={14} className="text-zinc-400 dark:text-white/30 flex-shrink-0" strokeWidth={1.75} />
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            title="Dari tanggal"
+            className="bg-transparent border-none outline-none text-zinc-800 dark:text-white font-sans text-xs w-full cursor-pointer color-scheme-light dark:color-scheme-dark"
+          />
+        </div>
+        <span className="text-zinc-300 dark:text-white/20 text-xs flex-shrink-0">—</span>
+        <div className="flex items-center gap-2 bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-xl px-3.5 py-2.5 flex-1 min-w-[160px] transition-colors focus-within:border-pink-500/40 dark:focus-within:border-[#fbcfe8]/40 shadow-sm dark:shadow-none">
+          <Calendar size={14} className="text-zinc-400 dark:text-white/30 flex-shrink-0" strokeWidth={1.75} />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            title="Sampai tanggal"
+            className="bg-transparent border-none outline-none text-zinc-800 dark:text-white font-sans text-xs w-full cursor-pointer color-scheme-light dark:color-scheme-dark"
+          />
+        </div>
+        {hasFilter && (
           <button
-            className="hv-back-btn"
-            onClick={() => navigate(-1)}
-            aria-label="Kembali"
+            className="w-[38px] h-[38px] rounded-[10px] bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/20 text-pink-600 dark:bg-[#fbcfe8]/8 dark:border-[#fbcfe8]/15 dark:text-[#f9a8d4] dark:hover:bg-[#fbcfe8]/18 flex items-center justify-center cursor-pointer flex-shrink-0 transition-colors"
+            onClick={clearFilter}
+            aria-label="Hapus filter"
           >
-            <ArrowLeft size={18} strokeWidth={1.75} />
+            <X size={15} strokeWidth={2} />
           </button>
-        </div>
+        )}
+      </div>
 
-        {/* Summary strip */}
-        <div className="hv-summary">
-          <div className="hv-sum-card">
-            <span className="hv-sum-label">Total transaksi</span>
-            <span className="hv-sum-val neutral">{filtered.length}</span>
-          </div>
-          <div className="hv-sum-card">
-            <span className="hv-sum-label">Total masuk</span>
-            <span className="hv-sum-val income">{fmtRp(totalIn)}</span>
-          </div>
-          <div className="hv-sum-card">
-            <span className="hv-sum-label">Total keluar</span>
-            <span className="hv-sum-val expense">{fmtRp(totalOut)}</span>
-          </div>
-        </div>
+      {/* Type tabs */}
+      <div className="flex gap-1.5 mb-5">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            className={`px-4 py-1.5 rounded-[10px] text-xs font-medium tracking-[0.02em] cursor-pointer border bg-white dark:bg-[#18181b] transition-all duration-200 ${activeTab === tab.key ? 'border-pink-500/20 bg-pink-500/10 text-pink-600 dark:border-[#fbcfe8]/25 dark:bg-[#fbcfe8]/15 dark:text-[#f9a8d4]' : 'border-zinc-200 text-zinc-400 dark:border-white/8 dark:text-white/40 hover:bg-zinc-50 dark:hover:bg-white/8 hover:text-zinc-700 dark:hover:text-white'}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* Filter bar */}
-        <div className="hv-filter">
-          <div className="hv-filter-group">
-            <Calendar size={14} className="hv-filter-icon" strokeWidth={1.75} />
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              title="Dari tanggal"
-            />
-          </div>
-          <span className="hv-filter-sep">—</span>
-          <div className="hv-filter-group">
-            <Calendar size={14} className="hv-filter-icon" strokeWidth={1.75} />
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              title="Sampai tanggal"
-            />
-          </div>
+      {/* Transaction list */}
+      {Object.keys(grouped).length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-zinc-400 dark:text-white/20 gap-3 text-center">
+          <p className="text-sm">Tidak ada transaksi ditemukan.</p>
           {hasFilter && (
-            <button
-              className="hv-clear-btn"
-              onClick={clearFilter}
-              aria-label="Hapus filter"
-            >
-              <X size={15} strokeWidth={2} />
+            <button className="text-xs text-pink-600 hover:text-pink-700 dark:text-[#f9a8d4] bg-none border-none cursor-pointer mt-1 transition-colors dark:hover:text-[#fca5a5]" onClick={clearFilter}>
+              Hapus filter
             </button>
           )}
         </div>
-
-        {/* Type tabs */}
-        <div className="hv-tabs">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              className={`hv-tab${activeTab === tab.key ? " active" : ""}`}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Transaction list */}
-        {Object.keys(grouped).length === 0 ? (
-          <div className="hv-empty">
-            <p>Tidak ada transaksi ditemukan.</p>
-            {hasFilter && (
-              <button className="hv-empty-reset" onClick={clearFilter}>
-                Hapus filter
-              </button>
-            )}
-          </div>
-        ) : (
-          Object.keys(grouped).map((month) => (
-            <div key={month} className="hv-group">
-              <p className="hv-group-title">{month}</p>
-              <div className="hv-tx-wrap">
-                {grouped[month].map((t) => (
-                  <div key={t.id} className="hv-tx-item">
-                    <div className="hv-tx-left">
-                      <TxIcon type={t.type} category={t.category} />
-                      <div>
-                        <p className="hv-tx-name">{t.title}</p>
-                        <p className="hv-tx-date">{fmtDateTime(t.date)}</p>
-                      </div>
-                    </div>
-                    <div className="hv-tx-right">
-                      <p
-                        className={`hv-tx-amount ${t.type === "incoming" ? "in" : "out"}`}
-                      >
-                        {t.type === "incoming" ? "+" : "−"} {fmtRp(t.amount)}
-                      </p>
-                      <span className={`hv-tx-badge ${t.category}`}>
-                        {t.category}
-                      </span>
+      ) : (
+        Object.keys(grouped).map((month) => (
+          <div key={month} className="mb-5">
+            <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-2.5 pl-1">{month}</p>
+            <div className="bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
+              {grouped[month].map((t) => (
+                <div key={t.id} className="flex items-center justify-between py-3.5 px-4 cursor-pointer transition-colors border-b border-zinc-100 dark:border-b-white/4 last:border-b-0 hover:bg-zinc-50/50 dark:hover:bg-white/4">
+                  <div className="flex items-center gap-3">
+                    <TxIcon type={t.type} category={t.category} />
+                    <div>
+                      <p className="text-[13px] font-medium text-zinc-800 dark:text-white mb-0.5">{t.title}</p>
+                      <p className="text-[11px] text-zinc-400 dark:text-white/30 font-mono tracking-[0.03em]">{fmtDateTime(t.date)}</p>
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-right">
+                    <p className={`font-syne text-[13px] font-bold ${t.type === "incoming" ? "text-emerald-600" : "text-zinc-500 dark:text-white/65"}`}>
+                      {t.type === "incoming" ? "+" : "−"} {fmtRp(t.amount)}
+                    </p>
+                    <span className={`text-[10px] font-medium tracking-[0.06em] px-1.5 py-0.5 rounded-md mt-1 inline-block border ${t.category === 'payment' ? 'bg-blue-500/10 text-blue-600 border-blue-500/15 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/15' : t.category === 'topup' ? 'bg-emerald-500/5 text-emerald-600 border-emerald-500/13 dark:bg-emerald-500/8 dark:text-emerald-500 dark:border-emerald-500/13' : 'bg-purple-500/5 text-purple-600 border-purple-500/13 dark:bg-purple-500/8 dark:text-purple-400 dark:border-purple-500/13'}`}>
+                      {t.category}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))
-        )}
-      </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }

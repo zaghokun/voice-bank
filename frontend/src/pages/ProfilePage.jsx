@@ -11,247 +11,6 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-/* ─── Styles ─── */
-const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap');
-
-  @keyframes pv-fade-up {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pv-check-in {
-    from { opacity: 0; transform: scale(0.8); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-
-  .pv-root * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .pv-page {
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100svh;
-    background: #09090b;
-    background-image:
-      radial-gradient(ellipse 60% 50% at 15% -5%, rgba(29,78,216,0.09) 0%, transparent 65%),
-      radial-gradient(ellipse 50% 40% at 85% 90%, rgba(29,78,216,0.05) 0%, transparent 60%);
-    color: #ffffff;
-    padding: 28px 24px 48px;
-    animation: pv-fade-up 0.45s cubic-bezier(.22,1,.36,1) both;
-  }
-
-  /* ── Top bar ── */
-  .pv-topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  .pv-topbar-left { display: flex; flex-direction: column; gap: 4px; }
-  .pv-section-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-  }
-  .pv-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 22px; font-weight: 800; letter-spacing: 0.03em;
-  }
-  .pv-title span { color: #fbcfe8; }
-  .pv-back-btn {
-    width: 40px; height: 40px; border-radius: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.2s, color 0.2s;
-    color: rgba(255,255,255,0.4);
-  }
-  .pv-back-btn:hover { background: rgba(255,255,255,0.08); color: #ffffff; }
-
-  /* ── Grid ── */
-  .pv-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  @media (min-width: 900px) {
-    .pv-grid { grid-template-columns: 280px 1fr; }
-  }
-
-  /* ── Card base ── */
-  .pv-card {
-    background: #18181b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    padding: 28px;
-  }
-
-  /* ── Left column ── */
-  .pv-left { display: flex; flex-direction: column; gap: 16px; }
-
-  /* Avatar area */
-  .pv-avatar-wrap {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 16px; padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .pv-avatar-ring {
-    position: relative; cursor: pointer;
-  }
-  .pv-avatar-img {
-    width: 96px; height: 96px; border-radius: 50%;
-    background: rgba(251,207,232,0.08);
-    border: 2px solid rgba(251,207,232,0.2);
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; transition: border-color 0.2s;
-    color: rgba(251,207,232,0.6);
-  }
-  .pv-avatar-ring:hover .pv-avatar-img { border-color: rgba(251,207,232,0.5); }
-  .pv-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
-  .pv-camera-btn {
-    position: absolute; bottom: 2px; right: 2px;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: #fbcfe8; color: #ffffff;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid #09090b;
-    transition: background 0.2s, transform 0.15s;
-  }
-  .pv-avatar-ring:hover .pv-camera-btn { background: #b91c1c; transform: scale(1.08); }
-
-  .pv-user-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px; font-weight: 800;
-    text-align: center; letter-spacing: 0.02em;
-  }
-  .pv-account-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px; letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.3); text-align: center;
-    margin-top: -8px;
-  }
-
-  /* Verified badge */
-  .pv-verified {
-    width: 100%;
-    background: rgba(74,222,128,0.06);
-    border: 1px solid rgba(74,222,128,0.15);
-    border-radius: 12px; padding: 12px 14px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .pv-verified-icon {
-    width: 32px; height: 32px; border-radius: 9px;
-    background: rgba(74,222,128,0.1);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; color: #10b981;
-  }
-  .pv-verified-title { font-size: 12px; font-weight: 500; color: #10b981; }
-  .pv-verified-sub   { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 1px; }
-
-  /* Stats row */
-  .pv-stats {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  }
-  .pv-stat {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 12px;
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .pv-stat-label {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
-    text-transform: uppercase; color: rgba(255,255,255,0.2);
-  }
-  .pv-stat-val {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px; font-weight: 700; color: #ffffff;
-  }
-
-  /* ── Right column ── */
-  .pv-right { display: flex; flex-direction: column; gap: 0; }
-
-  .pv-form-title {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-    margin-bottom: 20px;
-  }
-
-  /* Field */
-  .pv-field { margin-bottom: 20px; }
-  .pv-field:last-of-type { margin-bottom: 0; }
-  .pv-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
-    text-transform: uppercase; color: rgba(255,255,255,0.3);
-    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
-  }
-  .pv-required { color: #f9a8d4; }
-
-  .pv-field-wrap {
-    display: flex; align-items: center; gap: 10px;
-    background: #18181b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 12px 14px;
-    transition: border-color 0.2s;
-  }
-  .pv-field-wrap.readonly {
-    background: rgba(255,255,255,0.04);
-    border-color: rgba(255,255,255,0.04);
-    cursor: not-allowed;
-  }
-  .pv-field-wrap:not(.readonly):focus-within {
-    border-color: rgba(251,207,232,0.4);
-  }
-  .pv-field-icon { color: rgba(255,255,255,0.3); flex-shrink: 0; }
-  .pv-field-wrap:not(.readonly):focus-within .pv-field-icon { color: #f9a8d4; }
-
-  .pv-field-wrap input {
-    background: transparent; border: none; outline: none;
-    color: #ffffff; font-family: 'DM Sans', sans-serif;
-    font-size: 14px; font-weight: 500; flex: 1; width: 100%;
-  }
-  .pv-field-wrap input::placeholder { color: rgba(255,255,255,0.2); }
-  .pv-field-wrap input:disabled { color: rgba(255,255,255,0.4); cursor: not-allowed; }
-
-  .pv-field-hint {
-    font-size: 11px; color: rgba(255,255,255,0.2);
-    margin-top: 6px; padding-left: 2px; line-height: 1.5;
-  }
-
-  /* Divider */
-  .pv-divider {
-    height: 1px; background: rgba(255,255,255,0.08);
-    margin: 24px 0;
-  }
-
-  /* Save row */
-  .pv-save-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  }
-  .pv-save-hint {
-    font-size: 12px; color: rgba(255,255,255,0.2); flex: 1;
-  }
-  .pv-save-success {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 12px; font-weight: 500; color: #10b981;
-    animation: pv-check-in 0.3s cubic-bezier(.22,1,.36,1);
-  }
-
-  .pv-save-btn {
-    display: flex; align-items: center; gap: 8px;
-    padding: 11px 22px; border-radius: 12px;
-    background: #fbcfe8; color: #ffffff;
-    font-family: 'Syne', sans-serif;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
-    border: 1px solid rgba(251,207,232,0.5);
-    cursor: pointer; flex-shrink: 0;
-    box-shadow: 0 4px 20px rgba(251,207,232,0.25);
-    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
-  }
-  .pv-save-btn:hover {
-    background: #b91c1c;
-    box-shadow: 0 4px 24px rgba(251,207,232,0.4);
-  }
-  .pv-save-btn:active { transform: scale(0.97); }
-`;
-
-function StyleTag() {
-  return <style dangerouslySetInnerHTML={{ __html: styles }} />;
-}
-
 export default function ProfilePage() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -292,177 +51,177 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="pv-root">
-      <StyleTag />
-      <div className="pv-page">
-        {/* Top bar */}
-        <div className="pv-topbar">
-          <div className="pv-topbar-left">
-            <span className="pv-section-label">Akun saya</span>
-            <span className="pv-title">
-              Profil<span>.</span>
-            </span>
+    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#09090b] bg-[radial-gradient(ellipse_60%_50%_at_15%_-5%,rgba(99,102,241,0.05)_0%,transparent_65%),radial-gradient(ellipse_50%_40%_at_85%_90%,rgba(244,114,182,0.04)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_60%_50%_at_15%_-5%,rgba(29,78,216,0.09)_0%,transparent_65%),radial-gradient(ellipse_50%_40%_at_85%_90%,rgba(29,78,216,0.05)_0%,transparent_60%)] text-zinc-800 dark:text-white p-6 pb-12 animate-fade-up font-sans selection:bg-pink-500/10 dark:selection:bg-[#fbcfe8]/30">
+      
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-7">
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30">Akun saya</span>
+          <span className="font-syne text-[22px] font-extrabold tracking-[0.03em] text-zinc-800 dark:text-white">
+            Profil<span className="text-pink-500 dark:text-[#fbcfe8]">.</span>
+          </span>
+        </div>
+        <button
+          className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 dark:bg-white/4 dark:border-white/8 flex items-center justify-center cursor-pointer transition-colors dark:text-white/40 dark:hover:bg-white/8 dark:hover:text-white"
+          onClick={() => navigate(-1)}
+          aria-label="Kembali"
+        >
+          <ArrowLeft size={18} strokeWidth={1.75} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-[280px_1fr]">
+        
+        {/* ── Left column ── */}
+        <div className="flex flex-col gap-4">
+          <div className="bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-[20px] p-7 shadow-sm dark:shadow-none">
+            {/* Avatar */}
+            <div className="flex flex-col items-center gap-4 pb-5 border-b border-zinc-100 dark:border-b-white/8">
+              <div
+                className="relative cursor-pointer group"
+                onClick={handleAvatarClick}
+                role="button"
+                aria-label="Ganti foto profil"
+              >
+                <div className="w-24 h-24 rounded-full bg-pink-500/5 border-2 border-pink-500/20 flex items-center justify-center overflow-hidden transition-colors duration-200 text-pink-600/60 dark:bg-[#fbcfe8]/8 dark:border-[#fbcfe8]/20 dark:text-[#fbcfe8]/60 group-hover:border-pink-500/50 dark:group-hover:border-[#fbcfe8]/50">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="Foto profil" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-10 h-10 text-pink-500 dark:text-[#fca5a5] flex-shrink-0" strokeWidth={1.5} />
+                  )}
+                </div>
+                <div className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full bg-pink-500 dark:bg-[#fbcfe8] text-white dark:text-[#09090b] flex items-center justify-center border-2 border-white dark:border-[#09090b] transition-all duration-200 group-hover:bg-pink-600 dark:group-hover:bg-[#fca5a5] group-hover:scale-108">
+                  <Camera size={12} strokeWidth={2} />
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept="image/*"
+                />
+              </div>
+              <p className="font-syne text-lg font-extrabold text-center tracking-[0.02em] text-zinc-800 dark:text-white">{user.name}</p>
+              <p className="font-mono text-[11px] tracking-widest text-zinc-400 dark:text-white/30 text-center -mt-2">{fmtAccount}</p>
+            </div>
+
+            {/* Verified */}
+            <div className="w-full bg-emerald-500/6 border border-emerald-500/15 rounded-xl p-3 flex items-center gap-2.5 mt-4">
+              <div className="w-8 h-8 rounded-[9px] bg-emerald-500/10 flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-500">
+                <Shield size={15} strokeWidth={1.75} />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-500">Terverifikasi</p>
+                <p className="text-[11px] text-zinc-400 dark:text-white/30 mt-0.5">Keamanan level bank</p>
+              </div>
+            </div>
           </div>
-          <button
-            className="pv-back-btn"
-            onClick={() => navigate(-1)}
-            aria-label="Kembali"
-          >
-            <ArrowLeft size={18} strokeWidth={1.75} />
-          </button>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="bg-zinc-50 border border-zinc-200 dark:bg-white/4 dark:border-white/8 rounded-xl p-3 flex flex-col gap-1 shadow-sm dark:shadow-none">
+              <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-zinc-400 dark:text-white/20">Status</span>
+              <span className="font-syne text-sm font-bold text-zinc-800 dark:text-white">Aktif</span>
+            </div>
+            <div className="bg-zinc-50 border border-zinc-200 dark:bg-white/4 dark:border-white/8 rounded-xl p-3 flex flex-col gap-1 shadow-sm dark:shadow-none">
+              <span className="text-[10px] font-medium tracking-[0.1em] uppercase text-zinc-400 dark:text-white/20">Tier</span>
+              <span className="font-syne text-sm font-bold text-zinc-800 dark:text-white">Silver</span>
+            </div>
+          </div>
         </div>
 
-        <div className="pv-grid">
-          {/* ── Left column ── */}
-          <div className="pv-left">
-            <div className="pv-card">
-              {/* Avatar */}
-              <div className="pv-avatar-wrap">
-                <div
-                  className="pv-avatar-ring"
-                  onClick={handleAvatarClick}
-                  role="button"
-                  aria-label="Ganti foto profil"
-                >
-                  <div className="pv-avatar-img">
-                    {user.avatar ? (
-                      <img src={user.avatar} alt="Foto profil" />
-                    ) : (
-                      <User size={36} strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="pv-camera-btn">
-                    <Camera size={12} strokeWidth={2} />
-                  </div>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="pv-hidden-input"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                  />
-                </div>
-                <p className="pv-user-name">{user.name}</p>
-                <p className="pv-account-num">{fmtAccount}</p>
-              </div>
+        {/* ── Right column ── */}
+        <div className="flex flex-col gap-0">
+          <div className="bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-[20px] p-7 h-full shadow-sm dark:shadow-none">
+            <p className="text-[11px] font-medium tracking-[0.14em] uppercase text-zinc-400 dark:text-white/30 mb-5">Informasi Pribadi</p>
 
-              {/* Verified */}
-              <div className="pv-verified" style={{ marginTop: 16 }}>
-                <div className="pv-verified-icon">
-                  <Shield size={15} strokeWidth={1.75} />
-                </div>
-                <div>
-                  <p className="pv-verified-title">Terverifikasi</p>
-                  <p className="pv-verified-sub">Keamanan level bank</p>
-                </div>
+            {/* Nama — read only */}
+            <div className="mb-5 last:mb-0">
+              <label className="text-[11px] font-medium tracking-[0.08em] uppercase text-zinc-400 dark:text-white/30 mb-2 flex items-center gap-1.5">
+                <User size={12} strokeWidth={2} /> Nama Pemilik Rekening
+              </label>
+              <div className="flex items-center gap-2.5 bg-zinc-100 border border-zinc-200 dark:bg-white/4 dark:border-white/4 rounded-xl px-3.5 py-3 cursor-not-allowed">
+                <User
+                  size={15}
+                  className="text-zinc-400 dark:text-white/30 flex-shrink-0"
+                  strokeWidth={1.75}
+                />
+                <input type="text" value={user.name} disabled className="bg-transparent border-none outline-none text-zinc-400 dark:text-white/40 font-sans text-sm font-medium flex-1 w-full cursor-not-allowed" />
+              </div>
+              <p className="text-[11px] text-zinc-400 dark:text-white/20 mt-1.5 pl-0.5 leading-normal">
+                Nama sesuai KTP, tidak dapat diubah.
+              </p>
+            </div>
+
+            {/* Email */}
+            <div className="mb-5 last:mb-0">
+              <label className="text-[11px] font-medium tracking-[0.08em] uppercase text-zinc-400 dark:text-white/30 mb-2 flex items-center gap-1.5">
+                <Mail size={12} strokeWidth={2} /> Email Utama
+                <span className="text-[#f9a8d4]">*</span>
+              </label>
+              <div className="group flex items-center gap-2.5 bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-xl px-3.5 py-3 transition-colors focus-within:border-pink-500/40 dark:focus-within:border-[#fbcfe8]/40 shadow-sm dark:shadow-none">
+                <Mail
+                  size={15}
+                  className="text-zinc-400 dark:text-white/30 flex-shrink-0 group-focus-within:text-pink-600 dark:group-focus-within:text-[#f9a8d4] transition-colors"
+                  strokeWidth={1.75}
+                />
+                <input
+                  type="email"
+                  value={user.email}
+                  onChange={(e) =>
+                    setUser((u) => ({ ...u, email: e.target.value }))
+                  }
+                  placeholder="nama@email.com"
+                  className="bg-transparent border-none outline-none text-zinc-800 dark:text-white font-sans text-sm font-medium flex-1 w-full placeholder-zinc-400 dark:placeholder-white/20"
+                />
+              </div>
+              <p className="text-[11px] text-zinc-400 dark:text-white/20 mt-1.5 pl-0.5 leading-normal">
+                Bukti transaksi dikirim ke alamat ini.
+              </p>
+            </div>
+
+            {/* Phone */}
+            <div className="mb-5 last:mb-0">
+              <label className="text-[11px] font-medium tracking-[0.08em] uppercase text-zinc-400 dark:text-white/30 mb-2 flex items-center gap-1.5">
+                <Phone size={12} strokeWidth={2} /> Nomor Handphone
+              </label>
+              <div className="group flex items-center gap-2.5 bg-white border border-zinc-200 dark:bg-[#18181b] dark:border-white/8 rounded-xl px-3.5 py-3 transition-colors focus-within:border-pink-500/40 dark:focus-within:border-[#fbcfe8]/40 shadow-sm dark:shadow-none">
+                <Phone
+                  size={15}
+                  className="text-zinc-400 dark:text-white/30 flex-shrink-0 group-focus-within:text-pink-600 dark:group-focus-within:text-[#f9a8d4] transition-colors"
+                  strokeWidth={1.75}
+                />
+                <input
+                  type="tel"
+                  value={user.phone}
+                  onChange={(e) =>
+                    setUser((u) => ({ ...u, phone: e.target.value }))
+                  }
+                  placeholder="081234567890"
+                  className="bg-transparent border-none outline-none text-zinc-800 dark:text-white font-sans text-sm font-medium flex-1 w-full placeholder-zinc-400 dark:placeholder-white/20"
+                />
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="pv-stats">
-              <div className="pv-stat">
-                <span className="pv-stat-label">Status</span>
-                <span className="pv-stat-val">Aktif</span>
-              </div>
-              <div className="pv-stat">
-                <span className="pv-stat-label">Tier</span>
-                <span className="pv-stat-val">Silver</span>
-              </div>
-            </div>
-          </div>
+            <div className="h-[1px] bg-zinc-200 dark:bg-white/8 my-6" />
 
-          {/* ── Right column ── */}
-          <div className="pv-right">
-            <div className="pv-card" style={{ height: "100%" }}>
-              <p className="pv-form-title">Informasi Pribadi</p>
-
-              {/* Nama — read only */}
-              <div className="pv-field">
-                <label className="pv-label">
-                  <User size={12} strokeWidth={2} /> Nama Pemilik Rekening
-                </label>
-                <div className="pv-field-wrap readonly">
-                  <User
-                    size={15}
-                    className="pv-field-icon"
-                    strokeWidth={1.75}
-                  />
-                  <input type="text" value={user.name} disabled />
+            {/* Save row */}
+            <div className="flex items-center justify-between gap-3">
+              {isSaved ? (
+                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-500 animate-scale-in">
+                  <CheckCircle size={15} strokeWidth={2} />
+                  Perubahan berhasil disimpan!
                 </div>
-                <p className="pv-field-hint">
-                  Nama sesuai KTP, tidak dapat diubah.
-                </p>
-              </div>
+              ) : (
+                <span className="text-xs text-zinc-400 dark:text-white/20 flex-1">
+                  Pastikan data sudah benar sebelum menyimpan.
+                </span>
+              )}
 
-              {/* Email */}
-              <div className="pv-field">
-                <label className="pv-label">
-                  <Mail size={12} strokeWidth={2} /> Email Utama
-                  <span className="pv-required">*</span>
-                </label>
-                <div className="pv-field-wrap">
-                  <Mail
-                    size={15}
-                    className="pv-field-icon"
-                    strokeWidth={1.75}
-                  />
-                  <input
-                    type="email"
-                    value={user.email}
-                    onChange={(e) =>
-                      setUser((u) => ({ ...u, email: e.target.value }))
-                    }
-                    placeholder="nama@email.com"
-                  />
-                </div>
-                <p className="pv-field-hint">
-                  Bukti transaksi dikirim ke alamat ini.
-                </p>
-              </div>
-
-              {/* Phone */}
-              <div className="pv-field">
-                <label className="pv-label">
-                  <Phone size={12} strokeWidth={2} /> Nomor Handphone
-                </label>
-                <div className="pv-field-wrap">
-                  <Phone
-                    size={15}
-                    className="pv-field-icon"
-                    strokeWidth={1.75}
-                  />
-                  <input
-                    type="tel"
-                    value={user.phone}
-                    onChange={(e) =>
-                      setUser((u) => ({ ...u, phone: e.target.value }))
-                    }
-                    placeholder="081234567890"
-                  />
-                </div>
-              </div>
-
-              <div className="pv-divider" />
-
-              {/* Save row */}
-              <div className="pv-save-row">
-                {isSaved ? (
-                  <div className="pv-save-success">
-                    <CheckCircle size={15} strokeWidth={2} />
-                    Perubahan berhasil disimpan!
-                  </div>
-                ) : (
-                  <span className="pv-save-hint">
-                    Pastikan data sudah benar sebelum menyimpan.
-                  </span>
-                )}
-
-                <button className="pv-save-btn" onClick={handleSave}>
-                  <Save size={14} strokeWidth={2} />
-                  Simpan
-                </button>
-              </div>
+              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#fbcfe8] text-[#09090b] font-syne text-xs font-bold tracking-[0.04em] border border-[#fbcfe8]/55 cursor-pointer flex-shrink-0 shadow-[0_4px_20px_rgba(236,72,153,0.15)] dark:shadow-[0_4px_20px_rgba(251,207,232,0.25)] transition-all hover:bg-[#fca5a5] hover:shadow-[0_4px_24px_rgba(251,207,232,0.4)] active:scale-97" onClick={handleSave}>
+                <Save size={14} strokeWidth={2} />
+                Simpan
+              </button>
             </div>
           </div>
         </div>
