@@ -19,10 +19,10 @@ const styles = `
   .hd-header {
     font-family: 'DM Sans', sans-serif;
     height: 72px;
-    background: rgba(8,11,16,0.92);
+    background: rgba(9,9,11,0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     padding: 0 24px;
     display: flex; align-items: center; justify-content: space-between;
     flex-shrink: 0;
@@ -34,13 +34,13 @@ const styles = `
   .hd-left { display: flex; flex-direction: column; gap: 3px; }
   .hd-greeting {
     font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
   }
   .hd-name {
     font-family: 'Syne', sans-serif;
-    font-size: 17px; font-weight: 800; letter-spacing: 0.02em; color: #fff;
+    font-size: 17px; font-weight: 800; letter-spacing: 0.02em; color: #ffffff;
   }
-  .hd-name span { color: #dc2626; }
+  .hd-name span { color: #fbcfe8; }
 
   /* ── Right: actions ── */
   .hd-right { display: flex; align-items: center; gap: 10px; }
@@ -49,24 +49,24 @@ const styles = `
   .hd-account {
     display: flex; flex-direction: column; align-items: flex-end;
     padding: 7px 14px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
     gap: 2px;
   }
   @media (max-width: 600px) { .hd-account { display: none; } }
   .hd-account-name {
-    font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.75);
+    font-size: 12px; font-weight: 500; color: #ffffff;
   }
   .hd-account-num {
     font-family: 'DM Mono', monospace;
-    font-size: 10px; letter-spacing: 0.08em; color: rgba(255,255,255,0.28);
+    font-size: 10px; letter-spacing: 0.08em; color: rgba(255,255,255,0.3);
   }
 
   /* Divider */
   .hd-divider {
     width: 1px; height: 28px;
-    background: rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.08);
   }
   @media (max-width: 600px) { .hd-divider { display: none; } }
 
@@ -74,38 +74,38 @@ const styles = `
   .hd-bell {
     position: relative;
     width: 38px; height: 38px; border-radius: 11px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.08);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; color: rgba(255,255,255,0.4);
     transition: background 0.2s, color 0.2s, border-color 0.2s;
   }
   .hd-bell:hover {
-    background: rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.08);
     border-color: rgba(255,255,255,0.12);
-    color: #fff;
+    color: #ffffff;
   }
   .hd-bell:active { transform: scale(0.95); }
   .hd-bell-dot {
     position: absolute; top: 8px; right: 8px;
     width: 7px; height: 7px; border-radius: 50%;
-    background: #dc2626;
-    border: 1.5px solid #080b10;
+    background: #fbcfe8;
+    border: 1.5px solid #09090b;
     animation: hd-pulse 2s ease-in-out infinite;
   }
 
   /* Avatar */
   .hd-avatar {
     width: 38px; height: 38px; border-radius: 11px;
-    background: rgba(220,38,38,0.08);
-    border: 1px solid rgba(220,38,38,0.18);
+    background: rgba(251,207,232,0.08);
+    border: 1px solid rgba(251,207,232,0.18);
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: #f87171; overflow: hidden;
+    cursor: pointer; color: #f9a8d4; overflow: hidden;
     transition: background 0.2s, border-color 0.2s;
   }
   .hd-avatar:hover {
-    background: rgba(220,38,38,0.15);
-    border-color: rgba(220,38,38,0.35);
+    background: rgba(251,207,232,0.15);
+    border-color: rgba(251,207,232,0.35);
   }
   .hd-avatar:active { transform: scale(0.95); }
   .hd-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -165,8 +165,8 @@ export default function Header() {
           {/* Bell */}
           <button
             className="hd-bell"
-            onClick={() => navigate('/notifications')}
-            aria-label="Notifikasi"
+            onClick={() => navigate('/history')}
+            aria-label="Riwayat"
           >
             <Bell size={15} strokeWidth={1.75} />
             <span className="hd-bell-dot" />

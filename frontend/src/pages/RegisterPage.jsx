@@ -21,18 +21,19 @@ const styles = `
   .vb-page {
     font-family: 'DM Sans', sans-serif;
     min-height: 100svh;
-    background: #080b10;
+    background: #09090b;
     background-image:
-      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(185,28,28,0.12) 0%, transparent 70%);
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(29,78,216,0.12) 0%, transparent 70%);
     display: flex; align-items: center; justify-content: center;
     padding: 24px;
   }
 
   /* ── Card ── */
   .vb-card {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
     width: 100%; max-width: 420px;
     position: relative;
-    background: rgba(255,255,255,0.03);
+    background: #18181b;
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 24px;
     padding: 40px 36px 36px;
@@ -43,7 +44,7 @@ const styles = `
   /* ── Decorative corners ── */
   .vb-corner {
     position: absolute; width: 24px; height: 24px;
-    border-color: rgba(220,38,38,0.3); border-style: solid;
+    border-color: rgba(251,207,232,0.3); border-style: solid;
   }
   .vb-corner-tl { top: -1px; left: -1px; border-width: 1px 0 0 1px; border-radius: 24px 0 0 0; }
   .vb-corner-br { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; border-radius: 0 0 24px 0; }
@@ -58,15 +59,15 @@ const styles = `
     width: 56px; height: 56px;
     border-radius: 16px;
     background: linear-gradient(145deg, #1c0808 0%, #3d0f0f 100%);
-    border: 1px solid rgba(220,38,38,0.25);
+    border: 1px solid rgba(251,207,232,0.25);
     display: flex; align-items: center; justify-content: center;
   }
   .vb-wordmark {
     font-family: 'Syne', sans-serif;
     font-size: 22px; font-weight: 800;
-    color: #fff; letter-spacing: 0.12em;
+    color: #ffffff; letter-spacing: 0.12em;
   }
-  .vb-wordmark span { color: #dc2626; }
+  .vb-wordmark span { color: #fbcfe8; }
   .vb-tagline {
     font-size: 13px; font-weight: 300;
     color: rgba(255,255,255,0.38);
@@ -78,7 +79,7 @@ const styles = `
   .vb-section-label {
     font-size: 11px; font-weight: 500;
     letter-spacing: 0.14em; text-transform: uppercase;
-    color: rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.3);
     margin-bottom: 18px;
   }
 
@@ -88,7 +89,7 @@ const styles = `
   .vb-field label {
     font-size: 11px; font-weight: 500;
     letter-spacing: 0.1em; text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.4);
     padding-left: 2px;
   }
   .vb-input {
@@ -99,17 +100,17 @@ const styles = `
     padding: 14px 16px;
     font-family: 'DM Sans', sans-serif;
     font-size: 14px; font-weight: 400;
-    color: #fff; outline: none;
+    color: #ffffff; outline: none;
     transition: border-color 0.2s, background 0.2s;
-    caret-color: #dc2626;
+    caret-color: #fbcfe8;
   }
   .vb-input::placeholder { color: rgba(255,255,255,0.2); }
-  .vb-input:hover  { border-color: rgba(255,255,255,0.15); }
+  .vb-input:hover  { border-color: rgba(255,255,255,0.2); }
   .vb-input:focus  {
-    border-color: rgba(220,38,38,0.55);
-    background: rgba(220,38,38,0.04);
+    border-color: rgba(251,207,232,0.55);
+    background: rgba(251,207,232,0.04);
   }
-  .vb-input.vb-error { border-color: rgba(220,38,38,0.55); }
+  .vb-input.vb-error { border-color: rgba(251,207,232,0.55); }
 
   /* ── Password strength bar ── */
   .vb-strength-wrap {
@@ -120,7 +121,7 @@ const styles = `
     background: rgba(255,255,255,0.08);
     transition: background 0.3s;
   }
-  .vb-strength-seg.active-weak   { background: #dc2626; }
+  .vb-strength-seg.active-weak   { background: #fbcfe8; }
   .vb-strength-seg.active-fair   { background: #f59e0b; }
   .vb-strength-seg.active-strong { background: #22c55e; }
   .vb-strength-label {
@@ -128,19 +129,19 @@ const styles = `
     margin-top: 4px; padding-left: 2px;
     transition: color 0.3s;
   }
-  .vb-strength-label.weak   { color: #f87171; }
+  .vb-strength-label.weak   { color: #f9a8d4; }
   .vb-strength-label.fair   { color: #fbbf24; }
-  .vb-strength-label.strong { color: #4ade80; }
+  .vb-strength-label.strong { color: #10b981; }
 
   /* ── Error msg ── */
   .vb-error-msg {
     font-size: 12px; font-weight: 400;
-    color: #f87171; padding-left: 4px;
+    color: #f9a8d4; padding-left: 4px;
   }
 
   /* ── Divider ── */
   .vb-divider {
-    height: 1px; background: rgba(255,255,255,0.07);
+    height: 1px; background: rgba(255,255,255,0.08);
     margin: 28px 0;
   }
 
@@ -150,8 +151,8 @@ const styles = `
     border-radius: 12px; border: none; cursor: pointer;
     font-family: 'DM Sans', sans-serif;
     font-size: 14px; font-weight: 500; letter-spacing: 0.06em;
-    color: #fff;
-    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: #ffffff;
+    background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%);
     transition: opacity 0.2s, transform 0.15s;
     position: relative; overflow: hidden;
   }
@@ -171,7 +172,7 @@ const styles = `
     color: rgba(255,255,255,0.3);
   }
   .vb-footer a {
-    color: #f87171; font-weight: 500;
+    color: #f9a8d4; font-weight: 500;
     text-decoration: none; transition: color 0.15s;
   }
   .vb-footer a:hover { color: #fca5a5; }
@@ -183,7 +184,7 @@ const styles = `
     color: rgba(255,255,255,0.2);
     line-height: 1.6;
   }
-  .vb-terms a { color: rgba(255,255,255,0.35); text-decoration: underline; text-underline-offset: 2px; }
+  .vb-terms a { color: rgba(255,255,255,0.4); text-decoration: underline; text-underline-offset: 2px; }
 `;
 
 function StyleTag() {
@@ -246,7 +247,7 @@ function RegisterPage() {
           {/* Brand */}
           <div className="vb-brand">
             <div className="vb-icon-wrap">
-              <Mic size={24} color="#dc2626" strokeWidth={1.5} />
+              <Mic size={24} color="#fbcfe8" strokeWidth={1.5} />
             </div>
             <div className="vb-wordmark">VOICE<span>BANK</span></div>
             <p className="vb-tagline">Buat akun baru Anda</p>

@@ -23,11 +23,11 @@ const styles = `
   .hv-page {
     font-family: 'DM Sans', sans-serif;
     min-height: 100svh;
-    background: #080b10;
+    background: #09090b;
     background-image:
-      radial-gradient(ellipse 70% 50% at 20% -5%, rgba(185,28,28,0.09) 0%, transparent 65%),
-      radial-gradient(ellipse 50% 40% at 85% 85%, rgba(185,28,28,0.05) 0%, transparent 60%);
-    color: #fff;
+      radial-gradient(ellipse 70% 50% at 20% -5%, rgba(29,78,216,0.09) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 85% 85%, rgba(29,78,216,0.05) 0%, transparent 60%);
+    color: #ffffff;
     padding: 28px 24px 48px;
     animation: hv-fade-up 0.45s cubic-bezier(.22,1,.36,1) both;
   }
@@ -40,13 +40,13 @@ const styles = `
   .hv-topbar-left { display: flex; flex-direction: column; gap: 4px; }
   .hv-section-label {
     font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
   }
   .hv-title {
     font-family: 'Syne', sans-serif;
     font-size: 22px; font-weight: 800; letter-spacing: 0.03em;
   }
-  .hv-title span { color: #dc2626; }
+  .hv-title span { color: #fbcfe8; }
   .hv-back-btn {
     width: 40px; height: 40px; border-radius: 12px;
     background: rgba(255,255,255,0.04);
@@ -55,7 +55,7 @@ const styles = `
     cursor: pointer; transition: background 0.2s, color 0.2s;
     color: rgba(255,255,255,0.4);
   }
-  .hv-back-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .hv-back-btn:hover { background: rgba(255,255,255,0.08); color: #ffffff; }
 
   /* ── Summary strip ── */
   .hv-summary {
@@ -68,23 +68,23 @@ const styles = `
     .hv-summary { grid-template-columns: 1fr; }
   }
   .hv-sum-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
     padding: 16px;
     display: flex; flex-direction: column; gap: 6px;
   }
   .hv-sum-label {
     font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
-    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
   }
   .hv-sum-val {
     font-family: 'Syne', sans-serif;
     font-size: 16px; font-weight: 700;
   }
-  .hv-sum-val.neutral { color: rgba(255,255,255,0.85); }
-  .hv-sum-val.income  { color: #4ade80; }
-  .hv-sum-val.expense { color: #f87171; }
+  .hv-sum-val.neutral { color: #ffffff; }
+  .hv-sum-val.income  { color: #10b981; }
+  .hv-sum-val.expense { color: #f9a8d4; }
 
   /* ── Filter bar ── */
   .hv-filter {
@@ -93,17 +93,17 @@ const styles = `
   }
   .hv-filter-group {
     display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px; padding: 9px 14px;
     flex: 1; min-width: 160px;
     transition: border-color 0.2s;
   }
-  .hv-filter-group:focus-within { border-color: rgba(220,38,38,0.4); }
+  .hv-filter-group:focus-within { border-color: rgba(251,207,232,0.4); }
   .hv-filter-icon { color: rgba(255,255,255,0.3); flex-shrink: 0; }
   .hv-filter-group input[type="date"] {
     background: transparent; border: none; outline: none;
-    color: rgba(255,255,255,0.75);
+    color: #ffffff;
     font-family: 'DM Sans', sans-serif;
     font-size: 13px; width: 100%; cursor: pointer;
     color-scheme: dark;
@@ -111,41 +111,41 @@ const styles = `
   .hv-filter-sep { color: rgba(255,255,255,0.2); font-size: 13px; flex-shrink: 0; }
   .hv-clear-btn {
     width: 38px; height: 38px; border-radius: 10px;
-    background: rgba(220,38,38,0.08);
-    border: 1px solid rgba(220,38,38,0.15);
+    background: rgba(251,207,232,0.08);
+    border: 1px solid rgba(251,207,232,0.15);
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: #f87171; flex-shrink: 0;
+    cursor: pointer; color: #f9a8d4; flex-shrink: 0;
     transition: background 0.2s;
   }
-  .hv-clear-btn:hover { background: rgba(220,38,38,0.18); }
+  .hv-clear-btn:hover { background: rgba(251,207,232,0.18); }
 
   /* ── Tabs ── */
   .hv-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
   .hv-tab {
     padding: 7px 16px; border-radius: 10px;
     font-size: 12px; font-weight: 500; letter-spacing: 0.02em;
-    cursor: pointer; border: 1px solid rgba(255,255,255,0.07);
-    background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4);
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.08);
+    background: #18181b; color: rgba(255,255,255,0.4);
     transition: all 0.2s;
   }
-  .hv-tab:hover:not(.active) { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+  .hv-tab:hover:not(.active) { background: rgba(255,255,255,0.08); color: #ffffff; }
   .hv-tab.active {
-    background: rgba(220,38,38,0.12);
-    border-color: rgba(220,38,38,0.25);
-    color: #f87171;
+    background: rgba(251,207,232,0.15);
+    border-color: rgba(251,207,232,0.25);
+    color: #f9a8d4;
   }
 
   /* ── Group ── */
   .hv-group { margin-bottom: 20px; }
   .hv-group-title {
     font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
     margin-bottom: 10px; padding-left: 4px;
   }
 
   /* ── Transaction list ── */
   .hv-tx-wrap {
-    background: rgba(255,255,255,0.03);
+    background: #18181b;
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px; overflow: hidden;
   }
@@ -153,7 +153,7 @@ const styles = `
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px; cursor: pointer;
     transition: background 0.2s;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
   }
   .hv-tx-item:last-child { border-bottom: none; }
   .hv-tx-item:hover { background: rgba(255,255,255,0.04); }
@@ -163,16 +163,16 @@ const styles = `
     width: 38px; height: 38px; border-radius: 11px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .hv-tx-icon.in      { background: rgba(74,222,128,0.09);  color: #4ade80; }
-  .hv-tx-icon.out     { background: rgba(220,38,38,0.10);   color: #f87171; }
+  .hv-tx-icon.in      { background: rgba(74,222,128,0.09);  color: #10b981; }
+  .hv-tx-icon.out     { background: rgba(251,207,232,0.10);   color: #f9a8d4; }
   .hv-tx-icon.payment { background: rgba(96,165,250,0.09);  color: #60a5fa; }
 
   .hv-tx-name {
     font-size: 13px; font-weight: 500;
-    color: rgba(255,255,255,0.85); margin-bottom: 2px;
+    color: #ffffff; margin-bottom: 2px;
   }
   .hv-tx-date {
-    font-size: 11px; color: rgba(255,255,255,0.28);
+    font-size: 11px; color: rgba(255,255,255,0.3);
     font-family: 'DM Mono', monospace; letter-spacing: 0.03em;
   }
 
@@ -181,7 +181,7 @@ const styles = `
     font-family: 'Syne', sans-serif;
     font-size: 13px; font-weight: 700;
   }
-  .hv-tx-amount.in  { color: #4ade80; }
+  .hv-tx-amount.in  { color: #10b981; }
   .hv-tx-amount.out { color: rgba(255,255,255,0.65); }
 
   .hv-tx-badge {
@@ -190,7 +190,7 @@ const styles = `
     display: inline-block;
   }
   .hv-tx-badge.payment  { background: rgba(96,165,250,0.10);  color: #60a5fa; border: 1px solid rgba(96,165,250,0.15); }
-  .hv-tx-badge.topup    { background: rgba(74,222,128,0.08);  color: #4ade80; border: 1px solid rgba(74,222,128,0.13); }
+  .hv-tx-badge.topup    { background: rgba(74,222,128,0.08);  color: #10b981; border: 1px solid rgba(74,222,128,0.13); }
   .hv-tx-badge.transfer { background: rgba(192,132,252,0.08); color: #c084fc; border: 1px solid rgba(192,132,252,0.13); }
 
   /* ── Empty state ── */
@@ -201,7 +201,7 @@ const styles = `
   }
   .hv-empty p { font-size: 13px; }
   .hv-empty-reset {
-    font-size: 12px; color: #f87171; background: none;
+    font-size: 12px; color: #f9a8d4; background: none;
     border: none; cursor: pointer; margin-top: 4px; transition: color 0.15s;
   }
   .hv-empty-reset:hover { color: #fca5a5; }

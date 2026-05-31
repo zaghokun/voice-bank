@@ -32,11 +32,11 @@ const styles = `
   .vb-dash {
     font-family: 'DM Sans', sans-serif;
     min-height: 100svh;
-    background: #080b10;
+    background: #09090b;
     background-image:
-      radial-gradient(ellipse 70% 50% at 30% -5%, rgba(185,28,28,0.10) 0%, transparent 65%),
-      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(185,28,28,0.06) 0%, transparent 60%);
-    color: #fff;
+      radial-gradient(ellipse 70% 50% at 30% -5%, rgba(29,78,216,0.10) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(29,78,216,0.06) 0%, transparent 60%);
+    color: #ffffff;
     padding: 28px 24px 48px;
     animation: vb-fade-up 0.5s cubic-bezier(.22,1,.36,1) both;
   }
@@ -49,17 +49,17 @@ const styles = `
   .vb-topbar-left { display: flex; flex-direction: column; gap: 4px; }
   .vb-greeting-label {
     font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
   }
   .vb-greeting-name {
     font-family: 'Syne', sans-serif;
     font-size: 22px; font-weight: 800;
-    color: #fff; letter-spacing: 0.04em;
+    color: #ffffff; letter-spacing: 0.04em;
   }
-  .vb-greeting-name span { color: #dc2626; }
+  .vb-greeting-name span { color: #fbcfe8; }
   .vb-avatar {
     width: 44px; height: 44px; border-radius: 14px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: background 0.2s;
@@ -82,13 +82,14 @@ const styles = `
   .vb-section-label {
     font-size: 11px; font-weight: 500;
     letter-spacing: 0.14em; text-transform: uppercase;
-    color: rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.3);
     margin-bottom: 14px;
   }
 
   /* ── Balance card ── */
   .vb-balance-card {
-    background: rgba(255,255,255,0.03);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    background: #18181b;
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 20px;
     padding: 28px;
@@ -98,7 +99,7 @@ const styles = `
     content: '';
     position: absolute; top: -60px; right: -60px;
     width: 200px; height: 200px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(220,38,38,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(251,207,232,0.15) 0%, transparent 70%);
     pointer-events: none;
   }
   .vb-balance-top {
@@ -114,35 +115,35 @@ const styles = `
   .vb-balance-amount {
     font-family: 'Syne', sans-serif;
     font-size: 32px; font-weight: 800;
-    color: #fff; letter-spacing: -0.01em;
+    color: #ffffff; letter-spacing: -0.01em;
   }
   .vb-eye-btn {
     width: 32px; height: 32px; border-radius: 10px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: background 0.2s; flex-shrink: 0;
     color: rgba(255,255,255,0.4);
   }
-  .vb-eye-btn:hover { background: rgba(255,255,255,0.09); color: #fff; }
+  .vb-eye-btn:hover { background: rgba(255,255,255,0.12); color: #ffffff; }
   .vb-badge {
     font-family: 'Syne', sans-serif;
     font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
     padding: 5px 10px; border-radius: 8px;
-    background: rgba(220,38,38,0.12);
-    border: 1px solid rgba(220,38,38,0.2);
-    color: #f87171;
+    background: rgba(251,207,232,0.15);
+    border: 1px solid rgba(251,207,232,0.2);
+    color: #f9a8d4;
   }
   .vb-balance-bottom {
     display: flex; justify-content: space-between; align-items: flex-end;
     padding-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top: 1px solid rgba(255,255,255,0.08);
   }
   .vb-balance-meta { display: flex; flex-direction: column; gap: 3px; }
   .vb-meta-label {
     font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
-    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
   }
-  .vb-meta-value { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); }
+  .vb-meta-value { font-size: 13px; font-weight: 500; color: #ffffff; }
   .vb-meta-value.mono { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.06em; }
 
   /* ── Quick actions ── */
@@ -155,8 +156,8 @@ const styles = `
     .vb-actions-grid { grid-template-columns: repeat(4, 1fr); }
   }
   .vb-action-btn {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
     padding: 16px 8px;
     display: flex; flex-direction: column; align-items: center; gap: 10px;
@@ -164,7 +165,7 @@ const styles = `
     transition: background 0.2s, border-color 0.2s, transform 0.15s;
   }
   .vb-action-btn:hover {
-    background: rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.08);
     border-color: rgba(255,255,255,0.12);
   }
   .vb-action-btn:active { transform: scale(0.96); }
@@ -178,11 +179,11 @@ const styles = `
     color: rgba(255,255,255,0.5);
     text-align: center; line-height: 1.3;
   }
-  .vb-action-btn:hover .vb-action-title { color: rgba(255,255,255,0.85); }
+  .vb-action-btn:hover .vb-action-title { color: #ffffff; }
 
   /* ── Voice card ── */
   .vb-voice-card {
-    background: rgba(255,255,255,0.03);
+    background: #18181b;
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 20px;
     padding: 28px;
@@ -198,18 +199,18 @@ const styles = `
   }
   .vb-voice-title-dot {
     width: 6px; height: 6px; border-radius: 50%;
-    background: #dc2626;
+    background: #fbcfe8;
   }
   /* Mic ring */
   .vb-mic-wrap { position: relative; margin-bottom: 24px; }
   .vb-mic-ping {
     position: absolute; inset: -12px; border-radius: 50%;
-    background: rgba(220,38,38,0.2);
+    background: rgba(251,207,232,0.2);
     animation: vb-ping 1.4s cubic-bezier(0,0,.2,1) infinite;
   }
   .vb-mic-ring {
     position: absolute; inset: -6px; border-radius: 50%;
-    border: 1px solid rgba(220,38,38,0.2);
+    border: 1px solid rgba(251,207,232,0.2);
     animation: vb-ping 1.8s 0.4s cubic-bezier(0,0,.2,1) infinite;
   }
   .vb-mic-btn {
@@ -221,13 +222,13 @@ const styles = `
     border: none;
   }
   .vb-mic-btn.idle {
-    background: rgba(255,255,255,0.05);
-    border: 1.5px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.12);
     box-shadow: none;
   }
   .vb-mic-btn.active {
-    background: #dc2626;
-    box-shadow: 0 0 32px rgba(220,38,38,0.4);
+    background: #fbcfe8;
+    box-shadow: 0 0 32px rgba(251,207,232,0.4);
   }
   .vb-mic-btn:hover { transform: scale(1.06); }
   .vb-mic-btn:active { transform: scale(0.97); }
@@ -239,7 +240,7 @@ const styles = `
   }
   .vb-wave-bar {
     width: 3px; border-radius: 99px;
-    background: rgba(220,38,38,0.7);
+    background: rgba(251,207,232,0.7);
   }
   .vb-wave-bar:nth-child(1) { height: 8px;  animation: vb-wave 0.9s 0.0s ease-in-out infinite; }
   .vb-wave-bar:nth-child(2) { height: 16px; animation: vb-wave 0.9s 0.1s ease-in-out infinite; }
@@ -252,8 +253,8 @@ const styles = `
   /* Transcript box */
   .vb-transcript {
     width: 100%;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
     padding: 14px 16px;
     min-height: 52px;
@@ -264,11 +265,11 @@ const styles = `
     color: rgba(255,255,255,0.3);
     text-align: center; line-height: 1.5;
   }
-  .vb-transcript p.active { color: rgba(255,255,255,0.75); font-style: normal; }
+  .vb-transcript p.active { color: #ffffff; font-style: normal; }
 
   /* ── Transactions ── */
   .vb-tx-card {
-    background: rgba(255,255,255,0.03);
+    background: #18181b;
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 20px;
     padding: 24px;
@@ -279,7 +280,7 @@ const styles = `
     margin-bottom: 16px;
   }
   .vb-tx-see-all {
-    font-size: 12px; font-weight: 500; color: #f87171;
+    font-size: 12px; font-weight: 500; color: #f9a8d4;
     background: none; border: none; cursor: pointer;
     display: flex; align-items: center; gap: 2px;
     transition: color 0.15s;
@@ -289,13 +290,13 @@ const styles = `
   .vb-tx-item {
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 14px; border-radius: 12px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.04);
     cursor: pointer; transition: background 0.2s, border-color 0.2s;
   }
   .vb-tx-item:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.12);
   }
   .vb-tx-left { display: flex; align-items: center; gap: 12px; }
   .vb-tx-icon {
@@ -303,13 +304,13 @@ const styles = `
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .vb-tx-icon.out { background: rgba(220,38,38,0.1); color: #f87171; }
-  .vb-tx-icon.in  { background: rgba(34,197,94,0.1);  color: #4ade80; }
-  .vb-tx-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); margin-bottom: 2px; }
-  .vb-tx-date  { font-size: 11px; color: rgba(255,255,255,0.28); }
+  .vb-tx-icon.out { background: rgba(251,207,232,0.1); color: #f9a8d4; }
+  .vb-tx-icon.in  { background: rgba(16,185,129,0.1);  color: #10b981; }
+  .vb-tx-title { font-size: 13px; font-weight: 500; color: #ffffff; margin-bottom: 2px; }
+  .vb-tx-date  { font-size: 11px; color: rgba(255,255,255,0.3); }
   .vb-tx-amount { font-size: 13px; font-weight: 500; }
   .vb-tx-amount.out { color: rgba(255,255,255,0.6); }
-  .vb-tx-amount.in  { color: #4ade80; }
+  .vb-tx-amount.in  { color: #10b981; }
 `;
 
 function StyleTag() {
@@ -325,7 +326,7 @@ const actionMeta = {
   Tabung:      { bg: 'rgba(236,72,153,0.12)', color: '#f472b6' },
   Bayar:       { bg: 'rgba(99,102,241,0.12)', color: '#818cf8' },
   Notifikasi:  { bg: 'rgba(249,115,22,0.12)', color: '#fb923c' },
-  Profil:      { bg: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.45)' },
+  Profil:      { bg: 'rgba(255,255,255,0.08)', color: '#fbcfe8' },
 };
 
 export default function DashboardPage() {
@@ -387,7 +388,7 @@ export default function DashboardPage() {
             </span>
           </div>
           <button className="vb-avatar" onClick={() => navigate('/profile')} aria-label="Profil">
-            <User size={18} color="rgba(255,255,255,0.45)" />
+            <User size={18} color="rgba(255,255,255,0.5)" />
           </button>
         </div>
 
@@ -441,7 +442,7 @@ export default function DashboardPage() {
               <p className="vb-section-label">Aksi cepat</p>
               <div className="vb-actions-grid">
                 {quickMenus.map((menu) => {
-                  const meta = actionMeta[menu.title] || { bg: 'rgba(255,255,255,0.05)', color: '#fff' };
+                  const meta = actionMeta[menu.title] || { bg: 'rgba(255,255,255,0.04)', color: '#ffffff' };
                   return (
                     <button
                       key={menu.title}
@@ -486,7 +487,7 @@ export default function DashboardPage() {
                   >
                     <Mic
                       size={28}
-                      color={isListening ? '#fff' : 'rgba(220,38,38,0.8)'}
+                      color={isListening ? '#09090b' : 'rgba(251,207,232,0.8)'}
                       strokeWidth={1.75}
                     />
                   </button>

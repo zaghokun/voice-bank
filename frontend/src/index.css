@@ -8,7 +8,7 @@
 
 body {
   font-family: sans-serif;
-  background: #111827;
+  background: #09090b;
   color: white;
 }
 
@@ -16,7 +16,7 @@ body {
   width: 400px;
   margin: 100px auto;
   padding: 32px;
-  background: #1f2937;
+  background: #ffffff;
   border-radius: 12px;
 }
 
@@ -56,11 +56,11 @@ body {
 
 .sidebar {
   width: 250px;
-  background: #111827;
+  background: #09090b;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #1f2937;
+  border-right: 1px solid #ffffff;
 }
 
 .logo {
@@ -83,7 +83,7 @@ body {
 }
 
 .menu-item:hover {
-  background: #1f2937;
+  background: #ffffff;
 }
 
 .active {
@@ -108,7 +108,7 @@ body {
 .transfer-card {
   margin-top: 24px;
   padding: 24px;
-  background: #1f2937;
+  background: #ffffff;
   border-radius: 16px;
   max-width: 600px;
 }
@@ -147,7 +147,7 @@ body {
   margin-top: 24px;
   padding: 20px;
   border-radius: 12px;
-  background: #111827;
+  background: #09090b;
 }
 
 .voice-btn,
@@ -266,7 +266,7 @@ body {
 }
 
 .history-card {
-  background: #1f2937;
+  background: #ffffff;
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -344,7 +344,7 @@ body {
   justify-content: flex-end;
   align-items: center;
   border-bottom: 1px solid #374151;
-  background: #111827;
+  background: #09090b;
 }
 
 .header-right {
@@ -460,7 +460,7 @@ body {
 
 .menu-card {
   width: 280px;
-  background: #1f2937;
+  background: #ffffff;
   border: none;
   border-radius: 20px;
   padding: 28px;
@@ -499,7 +499,7 @@ body {
 }
 
 .profile-card {
-  background: #1f2937;
+  background: #ffffff;
   border-radius: 24px;
   padding: 32px;
   max-width: 500px;
@@ -550,7 +550,7 @@ body {
 }
 
 .profile-card {
-  background: #1f2937;
+  background: #ffffff;
   border-radius: 24px;
   padding: 40px;
   width: 100%;
