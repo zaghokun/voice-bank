@@ -237,17 +237,6 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* User strip */}
-        <div className="sb-user">
-          <div className="sb-user-avatar">
-            <User size={15} strokeWidth={1.75} />
-          </div>
-          <div style={{ flex: 1, overflow: "hidden" }}>
-            <p className="sb-user-name">{user?.name}</p>
-            <p className="sb-user-role">NASABAH</p>
-          </div>
-        </div>
-
         {/* Footer / logout */}
         <div className="sb-footer">
           <button className="sb-logout" onClick={handleLogout}>

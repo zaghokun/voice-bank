@@ -5,6 +5,7 @@ import RegisterPage from '../pages/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
 import TransferPage from '../pages/TransferPage';
 import HistoryPage from '../pages/HistoryPage';
+import ProfilePage from '../pages/ProfilePage';
 import MainLayout from '../layouts/MainLayout';
 import ProtectedRoute from '../components/ProtectedRoute';
 
@@ -44,6 +45,17 @@ function AppRoutes() {
           <ProtectedRoute>
             <MainLayout>
               <TransferPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ProfilePage />
             </MainLayout>
           </ProtectedRoute>
         }

@@ -1,186 +1,474 @@
-import { useState, useRef } from 'react';
-import { Camera, Mail, Phone, User, Save, Shield } from 'lucide-react';
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Camera,
+  Mail,
+  Phone,
+  User,
+  Save,
+  Shield,
+  ArrowLeft,
+  CheckCircle,
+} from "lucide-react";
 
-function ProfilePage() {
-  const storedUser = JSON.parse(localStorage.getItem('registeredUser')) || {};
-  const [user, setUser] = useState({
-    name: storedUser.name || 'Gladys', // Mengikuti nama di screenshot
-    email: storedUser.email || 'gladyshersaputri21@gmail.com',
-    phone: storedUser.phone || '',
-    avatar: storedUser.avatar || null
-  });
-  
-  const [isSaved, setIsSaved] = useState(false);
+/* ─── Styles ─── */
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap');
+
+  @keyframes pv-fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pv-check-in {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .pv-root * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .pv-page {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100svh;
+    background: #080b10;
+    background-image:
+      radial-gradient(ellipse 60% 50% at 15% -5%, rgba(185,28,28,0.09) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 85% 90%, rgba(185,28,28,0.05) 0%, transparent 60%);
+    color: #fff;
+    padding: 28px 24px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: pv-fade-up 0.45s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  /* ── Top bar ── */
+  .pv-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .pv-topbar-left { display: flex; flex-direction: column; gap: 4px; }
+  .pv-section-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; color: rgba(255,255,255,0.25);
+  }
+  .pv-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800; letter-spacing: 0.03em;
+  }
+  .pv-title span { color: #dc2626; }
+  .pv-back-btn {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.2s, color 0.2s;
+    color: rgba(255,255,255,0.4);
+  }
+  .pv-back-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+  /* ── Grid ── */
+  .pv-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 900px) {
+    .pv-grid { grid-template-columns: 280px 1fr; }
+  }
+
+  /* ── Card base ── */
+  .pv-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px;
+  }
+
+  /* ── Left column ── */
+  .pv-left { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Avatar area */
+  .pv-avatar-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 16px; padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .pv-avatar-ring {
+    position: relative; cursor: pointer;
+  }
+  .pv-avatar-img {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: rgba(220,38,38,0.08);
+    border: 2px solid rgba(220,38,38,0.2);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; transition: border-color 0.2s;
+    color: rgba(220,38,38,0.6);
+  }
+  .pv-avatar-ring:hover .pv-avatar-img { border-color: rgba(220,38,38,0.5); }
+  .pv-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+  .pv-camera-btn {
+    position: absolute; bottom: 2px; right: 2px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #dc2626; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #080b10;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .pv-avatar-ring:hover .pv-camera-btn { background: #b91c1c; transform: scale(1.08); }
+
+  .pv-user-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 800;
+    text-align: center; letter-spacing: 0.02em;
+  }
+  .pv-account-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3); text-align: center;
+    margin-top: -8px;
+  }
+
+  /* Verified badge */
+  .pv-verified {
+    width: 100%;
+    background: rgba(74,222,128,0.06);
+    border: 1px solid rgba(74,222,128,0.15);
+    border-radius: 12px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .pv-verified-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: rgba(74,222,128,0.1);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: #4ade80;
+  }
+  .pv-verified-title { font-size: 12px; font-weight: 500; color: #4ade80; }
+  .pv-verified-sub   { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+
+  /* Stats row */
+  .pv-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .pv-stat {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .pv-stat-label {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(255,255,255,0.2);
+  }
+  .pv-stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.75);
+  }
+
+  /* ── Right column ── */
+  .pv-right { display: flex; flex-direction: column; gap: 0; }
+
+  .pv-form-title {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; color: rgba(255,255,255,0.25);
+    margin-bottom: 20px;
+  }
+
+  /* Field */
+  .pv-field { margin-bottom: 20px; }
+  .pv-field:last-of-type { margin-bottom: 0; }
+  .pv-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+  }
+  .pv-required { color: #f87171; }
+
+  .pv-field-wrap {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 12px 14px;
+    transition: border-color 0.2s;
+  }
+  .pv-field-wrap.readonly {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.05);
+    cursor: not-allowed;
+  }
+  .pv-field-wrap:not(.readonly):focus-within {
+    border-color: rgba(220,38,38,0.4);
+  }
+  .pv-field-icon { color: rgba(255,255,255,0.25); flex-shrink: 0; }
+  .pv-field-wrap:not(.readonly):focus-within .pv-field-icon { color: #f87171; }
+
+  .pv-field-wrap input {
+    background: transparent; border: none; outline: none;
+    color: rgba(255,255,255,0.8); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500; flex: 1; width: 100%;
+  }
+  .pv-field-wrap input::placeholder { color: rgba(255,255,255,0.2); }
+  .pv-field-wrap input:disabled { color: rgba(255,255,255,0.35); cursor: not-allowed; }
+
+  .pv-field-hint {
+    font-size: 11px; color: rgba(255,255,255,0.2);
+    margin-top: 6px; padding-left: 2px; line-height: 1.5;
+  }
+
+  /* Divider */
+  .pv-divider {
+    height: 1px; background: rgba(255,255,255,0.06);
+    margin: 24px 0;
+  }
+
+  /* Save row */
+  .pv-save-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .pv-save-hint {
+    font-size: 12px; color: rgba(255,255,255,0.2); flex: 1;
+  }
+  .pv-save-success {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 500; color: #4ade80;
+    animation: pv-check-in 0.3s cubic-bezier(.22,1,.36,1);
+  }
+
+  .pv-save-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 22px; border-radius: 12px;
+    background: #dc2626; color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    border: 1px solid rgba(220,38,38,0.5);
+    cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(220,38,38,0.25);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .pv-save-btn:hover {
+    background: #b91c1c;
+    box-shadow: 0 4px 24px rgba(220,38,38,0.4);
+  }
+  .pv-save-btn:active { transform: scale(0.97); }
+`;
+
+function StyleTag() {
+  return <style dangerouslySetInnerHTML={{ __html: styles }} />;
+}
+
+export default function ProfilePage() {
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  const accountNumber = localStorage.getItem('accountNumber') || '6785130512';
+  const storedUser = JSON.parse(localStorage.getItem("registeredUser")) || {};
+  const [user, setUser] = useState({
+    name: storedUser.name || "Pengguna",
+    email: storedUser.email || "",
+    phone: storedUser.phone || "",
+    avatar: storedUser.avatar || null,
+  });
+  const [isSaved, setIsSaved] = useState(false);
 
-  const handleAvatarClick = () => {
-    fileInputRef.current.click();
-  };
+  const accountNumber = localStorage.getItem("accountNumber") || "6785130512";
+  const fmtAccount = accountNumber.replace(
+    /(\d{3})(\d{4})(\d{3,})/,
+    "$1 $2 $3",
+  );
+
+  const handleAvatarClick = () => fileInputRef.current.click();
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUser({ ...user, avatar: reader.result });
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setUser((u) => ({ ...u, avatar: reader.result }));
+    reader.readAsDataURL(file);
   };
 
   const handleSave = () => {
     if (!user.email) {
-      alert('Email wajib diisi untuk pengiriman bukti transaksi!');
+      alert("Email wajib diisi untuk pengiriman bukti transaksi!");
       return;
     }
-
-    localStorage.setItem('registeredUser', JSON.stringify(user));
-    
+    localStorage.setItem("registeredUser", JSON.stringify(user));
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-8 transition-all duration-300 overflow-y-auto">
-       
-       {/* HEADER */}
-       <div className="pb-6 mb-8 border-b border-slate-800 shrink-0">
-          <h1 className="text-3xl font-bold text-white tracking-wide">Profil Akun</h1>
-          <p className="text-gray-400 mt-1">Kelola informasi pribadi dan preferensi pengiriman resi Anda</p>
-       </div>
+    <div className="pv-root">
+      <StyleTag />
+      <div className="pv-page">
+        {/* Top bar */}
+        <div className="pv-topbar">
+          <div className="pv-topbar-left">
+            <span className="pv-section-label">Akun saya</span>
+            <span className="pv-title">
+              Profil<span>.</span>
+            </span>
+          </div>
+          <button
+            className="pv-back-btn"
+            onClick={() => navigate(-1)}
+            aria-label="Kembali"
+          >
+            <ArrowLeft size={18} strokeWidth={1.75} />
+          </button>
+        </div>
 
-       <div className="flex flex-col xl:flex-row gap-8 flex-1 animate-fadeIn">
-         
-         {/* KOLOM KIRI (Avatar & Info Ringkas) */}
-         <div className="xl:w-1/3 flex flex-col gap-6 shrink-0">
-            <div className="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 p-8 rounded-2xl shadow-lg relative overflow-hidden flex flex-col items-center">
-               
-               <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-
-               <div className="relative mb-6 z-10 group cursor-pointer" onClick={handleAvatarClick}>
-                  <div className="w-32 h-32 rounded-full border-4 border-slate-800 bg-slate-900 flex items-center justify-center overflow-hidden transition group-hover:border-slate-700">
-                     {user.avatar ? (
-                        <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
-                     ) : (
-                        <User className="w-16 h-16 text-gray-500 group-hover:text-gray-400 transition" />
-                     )}
+        <div className="pv-grid">
+          {/* ── Left column ── */}
+          <div className="pv-left">
+            <div className="pv-card">
+              {/* Avatar */}
+              <div className="pv-avatar-wrap">
+                <div
+                  className="pv-avatar-ring"
+                  onClick={handleAvatarClick}
+                  role="button"
+                  aria-label="Ganti foto profil"
+                >
+                  <div className="pv-avatar-img">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="Foto profil" />
+                    ) : (
+                      <User size={36} strokeWidth={1.5} />
+                    )}
                   </div>
-                  
-                  <div className="absolute bottom-0 right-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white hover:bg-red-500 transition shadow-lg border-4 border-slate-950 scale-100 group-hover:scale-110 active:scale-95">
-                    <Camera className="w-4 h-4" />
+                  <div className="pv-camera-btn">
+                    <Camera size={12} strokeWidth={2} />
                   </div>
-                  
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleFileChange} 
-                    className="hidden" 
-                    accept="image/*" 
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="pv-hidden-input"
+                    accept="image/*"
+                    style={{ display: "none" }}
                   />
-               </div>
-               
-               <h2 className="text-2xl font-bold text-white mb-1 z-10 text-center">{user.name}</h2>
-               <div className="text-sm font-mono text-gray-400 mb-6 z-10">{accountNumber}</div>
+                </div>
+                <p className="pv-user-name">{user.name}</p>
+                <p className="pv-account-num">{fmtAccount}</p>
+              </div>
 
-               <div className="w-full bg-slate-900/80 rounded-xl p-4 border border-emerald-500/20 flex items-center gap-3 z-10">
-                 <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-emerald-500" />
-                 </div>
-                 <div>
-                   <p className="text-sm text-emerald-400 font-bold">Terverifikasi</p>
-                   <p className="text-xs text-gray-400">Keamanan level bank</p>
-                 </div>
-               </div>
+              {/* Verified */}
+              <div className="pv-verified" style={{ marginTop: 16 }}>
+                <div className="pv-verified-icon">
+                  <Shield size={15} strokeWidth={1.75} />
+                </div>
+                <div>
+                  <p className="pv-verified-title">Terverifikasi</p>
+                  <p className="pv-verified-sub">Keamanan level bank</p>
+                </div>
+              </div>
             </div>
-         </div>
 
-         {/* KOLOM KANAN (Formulir Informasi) */}
-         <div className="xl:w-2/3 flex flex-col gap-6">
-            {/* Hapus h-full agar form bisa merentang ke bawah sesuai tinggi kontennya */}
-            <div className="bg-slate-950 border border-slate-800 p-8 rounded-2xl shadow-lg flex flex-col relative h-auto">
-               
-               <h3 className="text-lg font-semibold text-white border-b border-slate-800 pb-4 mb-6">Informasi Pribadi</h3>
-               
-               {/* Hapus flex-1 dan ubah space-y-6 menjadi space-y-8 agar jarak antar input lebih lega */}
-               <div className="space-y-8">
-                 
-                 {/* NAMA PEMILIK (READ-ONLY) */}
-                 <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">Nama Pemilik Rekening</label>
-                    <div className="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-4 px-4 text-gray-500 cursor-not-allowed flex items-center gap-3">
-                      <User className="w-5 h-5 text-gray-600 shrink-0" />
-                      <span className="font-semibold truncate">{user.name}</span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-2 ml-1">Nama telah sesuai dengan KTP dan tidak dapat diubah.</p>
-                 </div>
-
-                 {/* EMAIL (EDITABLE, WAJIB) */}
-                 <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">
-                      Email Utama <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                         <Mail className={`w-5 h-5 transition-colors ${user.email ? 'text-gray-300' : 'text-gray-600 group-focus-within:text-red-500'}`} />
-                      </div>
-                      <input 
-                        type="email" 
-                        value={user.email}
-                        onChange={(e) => setUser({...user, email: e.target.value})}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl py-4 pl-12 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                        placeholder="Masukkan alamat email Anda"
-                        required
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2 ml-1">Wajib diisi. Bukti transaksi akan dikirimkan otomatis ke alamat email ini.</p>
-                 </div>
-
-                 {/* NOMOR HANDPHONE (EDITABLE) */}
-                 <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">Nomor Handphone</label>
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                         <Phone className={`w-5 h-5 transition-colors ${user.phone ? 'text-gray-300' : 'text-gray-600 group-focus-within:text-red-500'}`} />
-                      </div>
-                      <input 
-                        type="tel" 
-                        value={user.phone}
-                        onChange={(e) => setUser({...user, phone: e.target.value})}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl py-4 pl-12 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
-                        placeholder="Contoh: 081234567890"
-                      />
-                    </div>
-                 </div>
-               </div>
-
-               {/* BUTTON SIMPAN */}
-               <div className="pt-8 mt-10 border-t border-slate-800 flex items-center justify-between">
-                  {isSaved ? (
-                     <div className="text-emerald-500 font-medium animate-fadeIn flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        Perubahan berhasil disimpan!
-                     </div>
-                  ) : (
-                     <div className="text-gray-500 text-sm">Pastikan data yang dimasukkan sudah benar.</div>
-                  )}
-
-                  <button 
-                    onClick={handleSave}
-                    className="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg shadow-red-900/30 active:scale-95 border border-red-500/50 hover:shadow-red-900/50 shrink-0"
-                  >
-                    <Save className="w-5 h-5" />
-                    Simpan
-                  </button>
-               </div>
-
+            {/* Stats */}
+            <div className="pv-stats">
+              <div className="pv-stat">
+                <span className="pv-stat-label">Status</span>
+                <span className="pv-stat-val">Aktif</span>
+              </div>
+              <div className="pv-stat">
+                <span className="pv-stat-label">Tier</span>
+                <span className="pv-stat-val">Silver</span>
+              </div>
             </div>
-         </div>
+          </div>
 
-       </div>
+          {/* ── Right column ── */}
+          <div className="pv-right">
+            <div className="pv-card" style={{ height: "100%" }}>
+              <p className="pv-form-title">Informasi Pribadi</p>
+
+              {/* Nama — read only */}
+              <div className="pv-field">
+                <label className="pv-label">
+                  <User size={12} strokeWidth={2} /> Nama Pemilik Rekening
+                </label>
+                <div className="pv-field-wrap readonly">
+                  <User
+                    size={15}
+                    className="pv-field-icon"
+                    strokeWidth={1.75}
+                  />
+                  <input type="text" value={user.name} disabled />
+                </div>
+                <p className="pv-field-hint">
+                  Nama sesuai KTP, tidak dapat diubah.
+                </p>
+              </div>
+
+              {/* Email */}
+              <div className="pv-field">
+                <label className="pv-label">
+                  <Mail size={12} strokeWidth={2} /> Email Utama
+                  <span className="pv-required">*</span>
+                </label>
+                <div className="pv-field-wrap">
+                  <Mail
+                    size={15}
+                    className="pv-field-icon"
+                    strokeWidth={1.75}
+                  />
+                  <input
+                    type="email"
+                    value={user.email}
+                    onChange={(e) =>
+                      setUser((u) => ({ ...u, email: e.target.value }))
+                    }
+                    placeholder="nama@email.com"
+                  />
+                </div>
+                <p className="pv-field-hint">
+                  Bukti transaksi dikirim ke alamat ini.
+                </p>
+              </div>
+
+              {/* Phone */}
+              <div className="pv-field">
+                <label className="pv-label">
+                  <Phone size={12} strokeWidth={2} /> Nomor Handphone
+                </label>
+                <div className="pv-field-wrap">
+                  <Phone
+                    size={15}
+                    className="pv-field-icon"
+                    strokeWidth={1.75}
+                  />
+                  <input
+                    type="tel"
+                    value={user.phone}
+                    onChange={(e) =>
+                      setUser((u) => ({ ...u, phone: e.target.value }))
+                    }
+                    placeholder="081234567890"
+                  />
+                </div>
+              </div>
+
+              <div className="pv-divider" />
+
+              {/* Save row */}
+              <div className="pv-save-row">
+                {isSaved ? (
+                  <div className="pv-save-success">
+                    <CheckCircle size={15} strokeWidth={2} />
+                    Perubahan berhasil disimpan!
+                  </div>
+                ) : (
+                  <span className="pv-save-hint">
+                    Pastikan data sudah benar sebelum menyimpan.
+                  </span>
+                )}
+
+                <button className="pv-save-btn" onClick={handleSave}>
+                  <Save size={14} strokeWidth={2} />
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-export default ProfilePage;
