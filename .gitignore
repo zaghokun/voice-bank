@@ -1,40 +1,68 @@
+# =========================
 # Python
+# =========================
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyc
+
 venv/
 env/
 .env
+
 *.db
 *.sqlite3
 
+# =========================
 # IDE
+# =========================
 .vscode/
 .idea/
 
+# =========================
 # OS
+# =========================
 .DS_Store
 Thumbs.db
-# Virtual environment
-venv/
 
-# Environment variables
-.env
-
-# Jupyter Notebook cache
+# =========================
+# Jupyter
+# =========================
 .ipynb_checkpoints/
 
-# Python cache
-__pycache__/
-*.pyc
-
-# Temporary scraping folder
+# =========================
+# Data Science
+# =========================
 tweets-data/
-
 data-science/data/raw/
 
 output_mfcc/
 temp_gtts/
+
+# Generated datasets
 *.npz
 
+# =========================
+# Kiro
+# =========================
 .kiro
+
+# =========================
+# ML Model
+# =========================
+
+# Dataset & generated audio
+ml-model/data/
+ml-model/scripts/data/
+
+# Cache
+ml-model/__pycache__/
+ml-model/inference/__pycache__/
+
+# Experimental / backup models
+ml-model/model_intent_classification_old.keras
+ml-model/model_intent_classification_balanced.keras
+
+# Notebooks
+ml-model/tes.ipynb
+ml-model/test.ipynb
