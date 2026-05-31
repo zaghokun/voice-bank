@@ -30,18 +30,7 @@ def get_model():
     return _model
 
 
-@router.post("/voice-input")
-async def voice_input(
-    file: UploadFile = File(...),
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """
-    Terima file audio, jalankan model Speech-to-Intent, return prediksi.
-
-    - Input: file audio (WAV/WebM/OGG)
-    - Output: intent (TRANSFER/CEK_SALDO/RIWAYAT/TABUNG/BANTUAN) + confidence score
-    """
+async def predict_uploaded_audio(file: UploadFile):
     # Validate file type
     if not file.content_type or "audio" not in file.content_type:
         if not file.filename.endswith((".wav", ".mp3", ".webm", ".ogg")):
@@ -68,20 +57,12 @@ async def voice_input(
         confidence = float(probs[predicted_idx])
         intent = LABEL_CLASSES[predicted_idx]
 
-        # Save voice log
-        log = VoiceLog(
-            user_id=user.id,
-            detected_intent=intent,
-            confidence=confidence,
-        )
-        db.add(log)
-        db.commit()
-
-        return {
+        result = {
             "intent": intent,
             "confidence": round(confidence, 4),
             "all_scores": {label: round(float(probs[i]), 4) for i, label in enumerate(LABEL_CLASSES)},
         }
+        return result, confidence
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -89,3 +70,41 @@ async def voice_input(
         raise HTTPException(status_code=500, detail=f"Gagal memproses audio: {str(e)}")
     finally:
         os.unlink(tmp_path)
+
+
+@router.post("/voice-input")
+async def voice_input(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Terima file audio, jalankan model Speech-to-Intent, return prediksi.
+
+    - Input: file audio (WAV/WebM/OGG)
+    - Output: intent (TRANSFER/CEK_SALDO/RIWAYAT/TABUNG/BANTUAN) + confidence score
+    """
+    result, confidence = await predict_uploaded_audio(file)
+
+    # Save voice log
+    log = VoiceLog(
+        user_id=user.id,
+        detected_intent=result["intent"],
+        confidence=confidence,
+    )
+    db.add(log)
+    db.commit()
+
+    return result
+
+
+@router.post("/voice-input-test")
+async def voice_input_test(file: UploadFile = File(...)):
+    """
+    Endpoint sementara tanpa auth untuk testing model Speech-to-Intent.
+
+    - Input: file audio (WAV/WebM/OGG)
+    - Output: intent (TRANSFER/CEK_SALDO/RIWAYAT/TABUNG/BANTUAN) + confidence score
+    """
+    result, _ = await predict_uploaded_audio(file)
+    return result
