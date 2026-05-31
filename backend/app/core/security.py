@@ -12,12 +12,20 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 
+def _truncate_password(password: str) -> bytes:
+    """
+    Bcrypt batas 72 bytes. Truncate password ke 72 bytes pertama (UTF-8 safe).
+    Solusi standar untuk masalah ini di passlib + bcrypt 4.x.
+    """
+    return password.encode("utf-8")[:72]
+
+
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return pwd_context.hash(_truncate_password(password))
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    return pwd_context.verify(_truncate_password(plain), hashed)
 
 
 def create_access_token(data: dict) -> str:

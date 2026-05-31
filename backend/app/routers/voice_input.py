@@ -1,5 +1,6 @@
 import os
 import sys
+import traceback
 import tempfile
 import numpy as np
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
@@ -65,8 +66,10 @@ async def predict_uploaded_audio(file: UploadFile):
         return result, confidence
 
     except ValueError as e:
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Gagal memproses audio: {str(e)}")
     finally:
         os.unlink(tmp_path)
