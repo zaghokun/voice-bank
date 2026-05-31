@@ -1,95 +1,113 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { Mic } from 'lucide-react';
 import PopupMessage from '../components/PopupMessage';
-import { registerUser } from '../services/userService';
-import { useAuth } from '../hooks/useAuth';
-import { tts } from '../services/ttsService';
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e) => {
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const handleRegister = (e) => {
     e.preventDefault();
-    setError('');
+
+    setNameError('');
+    setEmailError('');
 
     const nameRegex = /^[A-Za-z\s]+$/;
+
     if (!nameRegex.test(name)) {
-      setError('Nama hanya berupa huruf');
-      return;
+        setNameError('Nama hanya berupa huruf');
+        return;
     }
 
-    setLoading(true);
-    try {
-      const data = await registerUser({ name, email, password });
-      login(data.access_token, data.user);
-      tts.registerSuccess(data.user.name);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Registrasi gagal');
-    } finally {
-      setLoading(false);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        setEmailError('Masukkan email yang valid');
+        return;
     }
+
+    const userData = {
+        name,
+        email,
+        password,
+    };
+
+    localStorage.setItem( 
+        'registeredUser',
+        JSON.stringify(userData)
+    );
+
+    navigate('/');
   };
 
   return (
-    <div className="auth-container" role="main" aria-label="Halaman registrasi">
-      <h1>Register</h1>
-
-      <form onSubmit={handleRegister} noValidate aria-label="Form registrasi">
-        <div className="input-group">
-          <input
-            type="text"
-            placeholder="Nama"
-            aria-label="Nama lengkap"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-8 animate-fadeIn">
+        
+        {/* Header Logo */}
+        <div className="flex flex-col items-center mb-8">
+           <div className="p-3 bg-red-600/10 rounded-2xl border border-red-500/20 mb-4">
+              <Mic className="w-8 h-8 text-red-500" />
+           </div>
+           <h1 className="text-3xl font-bold text-white tracking-wide">Register</h1>
+           <p className="text-gray-400 mt-2 text-sm text-center">Buat akun VoiceBank baru</p>
         </div>
 
-        <div className="input-group">
-          <input
-            type="email"
-            placeholder="Email"
-            aria-label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+        <form onSubmit={handleRegister} noValidate className="space-y-5">
+          <div className="space-y-1">
+            <input
+              type="text"
+              placeholder="Nama"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+            />
+            <PopupMessage message={nameError} />
+          </div>
 
-        <div className="input-group">
-          <input
-            type="password"
-            placeholder="Password"
-            aria-label="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <div className="space-y-1">
+            <input
+              type="text"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+            />
+            <PopupMessage message={emailError} />
+          </div>
 
-        <div aria-live="polite">
-          <PopupMessage message={error} />
-        </div>
+          <div className="space-y-1">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+            />
+          </div>
 
-        <button type="submit" disabled={loading} aria-label={loading ? 'Sedang memproses registrasi' : 'Daftar akun baru'}>
-          {loading ? 'Loading...' : 'Register'}
-        </button>
-      </form>
+          <button 
+            type="submit"
+            className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-900/30 active:scale-95 mt-6"
+          >
+            Register
+          </button>
+        </form>
 
-      <p>
-        Sudah punya akun?{' '}
-        <Link to="/">Login</Link>
-      </p>
+        <p className="text-center text-gray-400 mt-8 text-sm">
+          Sudah punya akun?{' '}
+          <Link to="/" className="text-red-500 font-bold hover:text-red-400 transition-colors">
+            Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

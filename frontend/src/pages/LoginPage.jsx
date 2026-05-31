@@ -1,78 +1,122 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { Mic } from 'lucide-react';
 import PopupMessage from '../components/PopupMessage';
-import { loginUser } from '../services/userService';
-import { useAuth } from '../hooks/useAuth';
-import { tts } from '../services/ttsService';
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+
+  // State untuk Splash Screen
+  const [showSplash, setShowSplash] = useState(true);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleLogin = (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
 
-    try {
-      const data = await loginUser({ email, password });
-      login(data.access_token, data.user);
-      tts.welcome(data.user.name);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Login gagal');
-      tts.loginError();
-    } finally {
-      setLoading(false);
+    setEmailError('');
+    setPasswordError('');
+
+    const storedUser = JSON.parse(
+        localStorage.getItem('registeredUser')
+    );
+
+    if (!storedUser) {
+        setEmailError('Email belum terdaftar');
+        return;
     }
+
+    if (email !== storedUser.email) {
+        setEmailError('Email belum terdaftar');
+        return;
+    }
+
+    if (password !== storedUser.password) {
+        setPasswordError('Password salah');
+        return;
+    }
+
+    navigate('/dashboard');
   };
 
+  if (showSplash) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+        <div className="animate-bounce">
+          <div className="p-8 bg-red-600 rounded-3xl shadow-[0_0_80px_rgba(220,38,38,0.4)]">
+             <Mic className="w-20 h-20 text-white" />
+          </div>
+        </div>
+        <h1 className="mt-8 text-4xl font-extrabold text-white tracking-widest animate-pulse">
+          VOICEBANK
+        </h1>
+      </div>
+    );
+  }
+
+  // Render Form Login Utama
   return (
-    <div className="auth-container" role="main" aria-label="Halaman login">
-      <h1>Login</h1>
-
-      <form onSubmit={handleLogin} aria-label="Form login">
-        <div className="input-group">
-          <input
-            type="email"
-            placeholder="Email"
-            aria-label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-8 animate-fadeIn">
+        
+        {/* Header Logo */}
+        <div className="flex flex-col items-center mb-8">
+           <div className="p-3 bg-red-600/10 rounded-2xl border border-red-500/20 mb-4">
+              <Mic className="w-8 h-8 text-red-500" />
+           </div>
+           <h1 className="text-3xl font-bold text-white tracking-wide">Login</h1>
+           <p className="text-gray-400 mt-2 text-sm text-center">Masuk ke akun VoiceBank Anda untuk melanjutkan</p>
         </div>
 
-        <div className="input-group">
-          <input
-            type="password"
-            placeholder="Password"
-            aria-label="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div className="space-y-1">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+            />
+            <PopupMessage message={emailError} />
+          </div>
 
-        <div aria-live="polite">
-          <PopupMessage message={error} />
-        </div>
+          <div className="space-y-1">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-medium"
+            />
+            <PopupMessage message={passwordError} />
+          </div>
 
-        <button type="submit" disabled={loading} aria-label={loading ? 'Sedang memproses login' : 'Login'}>
-          {loading ? 'Loading...' : 'Login'}
-        </button>
-      </form>
+          <button 
+            type="submit"
+            className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-900/30 active:scale-95 mt-6"
+          >
+            Login
+          </button>
+        </form>
 
-      <p>
-        Belum punya akun?{' '}
-        <Link to="/register">Register</Link>
-      </p>
+        <p className="text-center text-gray-400 mt-8 text-sm">
+          Belum punya akun?{' '}
+          <Link to="/register" className="text-red-500 font-bold hover:text-red-400 transition-colors">
+            Register
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
