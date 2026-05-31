@@ -38,8 +38,6 @@ const styles = `
       radial-gradient(ellipse 50% 40% at 80% 80%, rgba(185,28,28,0.06) 0%, transparent 60%);
     color: #fff;
     padding: 28px 24px 48px;
-    max-width: 1200px;
-    margin: 0 auto;
     animation: vb-fade-up 0.5s cubic-bezier(.22,1,.36,1) both;
   }
 

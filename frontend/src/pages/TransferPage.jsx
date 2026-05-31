@@ -29,8 +29,6 @@ const styles = `
       radial-gradient(ellipse 40% 35% at 85% 90%,rgba(185,28,28,.06) 0%,transparent 60%);
     color:#fff;
     padding:28px 24px 56px;
-    max-width:1100px;
-    margin:0 auto;
     animation:vb-fade-up .5s cubic-bezier(.22,1,.36,1) both;
   }
 
