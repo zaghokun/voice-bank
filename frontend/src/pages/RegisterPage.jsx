@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mic } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { registerUser } from "../services/userService";
+import { tts } from "../services/ttsService";
 
 function getStrength(pw) {
   if (!pw) return { level: 0, label: "", cls: "" };
@@ -16,6 +19,7 @@ function getStrength(pw) {
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,10 +27,15 @@ function RegisterPage() {
 
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const strength = getStrength(password);
 
-  const handleRegister = (e) => {
+  useEffect(() => {
+    tts.speak('Halaman pendaftaran. Silakan isi nama, email, dan password.');
+  }, []);
+
+  const handleRegister = async (e) => {
     e.preventDefault();
     setNameError("");
     setEmailError("");
@@ -34,20 +43,30 @@ function RegisterPage() {
     const nameRegex = /^[A-Za-z\s]+$/;
     if (!nameRegex.test(name)) {
       setNameError("Nama hanya berupa huruf");
+      tts.error("Nama hanya boleh berupa huruf.");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError("Masukkan email yang valid");
+      tts.error("Email tidak valid.");
       return;
     }
 
-    localStorage.setItem(
-      "registeredUser",
-      JSON.stringify({ name, email, password }),
-    );
-    navigate("/");
+    setLoading(true);
+    try {
+      const data = await registerUser({ name, email, password });
+      login(data.access_token, data.user);
+      tts.registerSuccess(data.user.name);
+      navigate("/dashboard");
+    } catch (err) {
+      const msg = err.response?.data?.detail || "Registrasi gagal";
+      setEmailError(msg);
+      tts.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const segClass = (i) => {
@@ -272,6 +291,7 @@ function RegisterPage() {
 
           <button
             type="submit"
+            disabled={loading}
             className="
               w-full
               p-[13px] sm:p-[15px]
@@ -288,7 +308,7 @@ function RegisterPage() {
               min-h-[44px]
             "
           >
-            Buat akun
+            {loading ? "Memproses..." : "Buat akun"}
           </button>
         </form>
 

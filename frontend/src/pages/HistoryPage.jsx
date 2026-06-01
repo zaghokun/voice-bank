@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -8,6 +8,8 @@ import {
   X,
   ArrowLeft,
 } from "lucide-react";
+import { getTransactions } from "../services/transactionService";
+import { tts } from "../services/ttsService";
 
 /* ─── Helpers ─── */
 const MONTHS = [
@@ -159,9 +161,34 @@ export default function HistoryPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getTransactions()
+      .then(txs => {
+        // Map API response ke format yang dipakai komponen
+        const mapped = txs.map(tx => ({
+          id: tx.id,
+          type: tx.type === 'tabung' ? 'incoming' : 'outgoing',
+          title: tx.type === 'transfer'
+            ? `Transfer ke ${tx.target_user || 'Penerima'}`
+            : tx.type === 'tabung'
+              ? 'Tabungan'
+              : tx.type,
+          date: tx.created_at,
+          amount: tx.amount,
+          category: tx.type === 'transfer' ? 'transfer' : tx.type === 'tabung' ? 'topup' : 'payment',
+        }));
+        setTransactions(mapped);
+        tts.speak(`Riwayat transaksi. ${mapped.length} transaksi ditemukan.`);
+      })
+      .catch(() => tts.error('Gagal memuat riwayat transaksi'))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = useMemo(() => {
-    return ALL_TRANSACTIONS.filter((t) => {
+    return transactions.filter((t) => {
       if (activeTab !== "all" && t.type !== activeTab) return false;
       if (!startDate && !endDate) return true;
       const ts = new Date(t.date).getTime();
@@ -171,7 +198,7 @@ export default function HistoryPage() {
         : Infinity;
       return ts >= s && ts <= e;
     });
-  }, [startDate, endDate, activeTab]);
+  }, [transactions, startDate, endDate, activeTab]);
 
   const totalIn = filtered
     .filter((t) => t.type === "incoming")

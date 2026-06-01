@@ -19,6 +19,7 @@ export function speak(text, onEnd) {
 
 // Pre-built feedback messages
 export const tts = {
+  speak,
   welcome: (name) => speak(`Selamat datang, ${name}`),
   loginError: () => speak('Login gagal. Periksa email dan password Anda.'),
   registerSuccess: (name) => speak(`Registrasi berhasil. Selamat datang, ${name}`),
@@ -34,10 +35,10 @@ export const tts = {
     speak(`Perintah terdeteksi: ${map[intent] || intent}. Keyakinan ${pct} persen.`);
   },
   transferSuccess: (amount, target) =>
-    speak(`Transfer ${amount} ke ${target} berhasil.`),
+    speak(`Transfer ${amount} rupiah ke ${target} berhasil.`),
   transferError: (msg) => speak(`Transfer gagal. ${msg}`),
   balance: (amount) => speak(`Saldo Anda saat ini ${amount} rupiah.`),
   recordingStart: () => speak('Mulai merekam.'),
-  recordingStop: () => speak('Rekaman selesai. Tekan kirim untuk memproses.'),
+  recordingStop: () => speak('Rekaman selesai. Memproses...'),
   error: (msg) => speak(msg || 'Maaf, terjadi kesalahan. Silakan ulangi.'),
 };

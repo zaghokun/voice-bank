@@ -5,6 +5,10 @@ import {
   CreditCard, ArrowRight, Info
 } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
+import { createTransfer } from '../services/transactionService';
+import { sendVoiceCommand } from '../services/voiceService';
+import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { tts } from '../services/ttsService';
 
 function initials(name) {
   if (!name) return '?';
@@ -22,8 +26,24 @@ export default function TransferPage() {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('Transfer via VoiceBank');
   const [error, setError] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const [voiceText, setVoiceText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [voiceProcessing, setVoiceProcessing] = useState(false);
+
+  const { recording, audioBlob, startRecording, stopRecording } = useAudioRecorder();
+  const isListening = recording || voiceProcessing;
+
+  // TTS announce halaman load
+  useEffect(() => {
+    tts.speak('Halaman transfer. Langkah 1 dari 4. Masukkan nomor rekening tujuan.');
+  }, []);
+
+  // TTS announce per-step
+  useEffect(() => {
+    if (step === 2) tts.speak('Langkah 2 dari 4. Masukkan nominal transfer.');
+    else if (step === 3) tts.speak(`Langkah 3 dari 4. Konfirmasi transfer Rp ${parseInt(amount||'0',10).toLocaleString('id-ID')} ke ${recipientName}.`);
+    else if (step === 4) tts.transferSuccess(parseInt(amount||'0',10).toLocaleString('id-ID'), recipientName);
+  }, [step]);
 
   const recipientHistory = [
     { name: 'Budi Santoso',  accNo: '82938102', initial: 'BS' },
@@ -40,31 +60,90 @@ export default function TransferPage() {
     else setRecipientName('');
   }, [accountNumber]);
 
+  // Real voice: kirim audioBlob ke backend, route berdasarkan intent
   useEffect(() => {
-    if (!isListening) { setVoiceText(''); return; }
-    let t1, t2, t3;
-    setVoiceText('Mendengarkan…');
-    t1 = setTimeout(() => setVoiceText('"Kirim ke Budi…"'), 1200);
-    t2 = setTimeout(() => setVoiceText('"Kirim ke Budi Santoso (82938102)"'), 2500);
-    t3 = setTimeout(() => {
-      setAccountNumber('82938102'); setRecipientName('Budi Santoso');
-      setIsListening(false); setStep(2);
-    }, 3800);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [isListening]);
+    if (!audioBlob) return;
+    let cancelled = false;
+    setVoiceProcessing(true);
+    setVoiceText('Memproses...');
+    sendVoiceCommand(audioBlob)
+      .then(data => {
+        if (cancelled) return;
+        const { intent, confidence } = data;
+        setVoiceText(`Intent: ${intent} (${(confidence * 100).toFixed(0)}%)`);
+        if (confidence < 0.6) {
+          tts.error('Perintah tidak jelas. Silakan ulangi.');
+          return;
+        }
+        tts.intentDetected(intent, confidence);
+        // TRANSFER intent → tetap di halaman, prompt user input
+        if (intent === 'TRANSFER') {
+          tts.speak('Silakan masukkan nomor rekening atau pilih dari riwayat.');
+        } else if (intent === 'CEK_SALDO') {
+          navigate('/dashboard');
+        } else if (intent === 'RIWAYAT') {
+          navigate('/history');
+        } else if (intent === 'TABUNG') {
+          navigate('/savings');
+        } else if (intent === 'BANTUAN') {
+          navigate('/help');
+        }
+      })
+      .catch(err => {
+        if (cancelled) return;
+        const msg = err.response?.data?.detail || 'Gagal memproses perintah suara';
+        setVoiceText('Gagal memproses');
+        tts.error(msg);
+      })
+      .finally(() => {
+        if (!cancelled) setVoiceProcessing(false);
+      });
+    return () => { cancelled = true; };
+  }, [audioBlob]);
+
+  const toggleVoice = () => {
+    if ('vibrate' in navigator) navigator.vibrate([80, 40, 80]);
+    if (recording) {
+      stopRecording();
+      tts.recordingStop();
+      setVoiceText('Memproses...');
+    } else {
+      tts.recordingStart();
+      setVoiceText('Mendengarkan...');
+      startRecording();
+    }
+  };
 
   const handleSelectHistory = (c) => { setAccountNumber(c.accNo); setRecipientName(c.name); setError(''); setStep(2); };
   const handleAmountChange  = (e) => { setAmount(e.target.value.replace(/[^0-9]/g,'')); setError(''); };
   const handleAddAmount     = (v) => { setAmount((parseInt(amount||'0',10)+v).toString()); setError(''); };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (step === 1) {
-      if (!accountNumber.trim()) { setError('Silakan masukkan nomor rekening tujuan.'); return; }
+      if (!accountNumber.trim()) { setError('Silakan masukkan nomor rekening tujuan.'); tts.error('Silakan masukkan nomor rekening.'); return; }
       setError(''); setStep(2);
     } else if (step === 2) {
-      if (!amount || parseInt(amount,10) <= 0) { setError('Nominal transfer harus lebih besar dari Rp 0.'); return; }
+      if (!amount || parseInt(amount,10) <= 0) { setError('Nominal transfer harus lebih besar dari Rp 0.'); tts.error('Nominal harus lebih dari nol rupiah.'); return; }
       setError(''); setStep(3);
-    } else if (step === 3) { setError(''); setStep(4); }
+    } else if (step === 3) {
+      // Submit transfer ke backend
+      setSubmitting(true);
+      try {
+        await createTransfer({
+          type: 'transfer',
+          amount: parseInt(amount, 10),
+          target_user: recipientName || `Rekening ${accountNumber}`,
+        });
+        setError('');
+        setStep(4);
+      } catch (err) {
+        const msg = err.response?.data?.detail || 'Transfer gagal';
+        setError(msg);
+        tts.transferError(msg);
+      } finally {
+        setSubmitting(false);
+      }
+    }
   };
 
   const handleReset = () => { setAccountNumber(''); setRecipientName(''); setAmount(''); setNote('Transfer via VoiceBank'); setError(''); setStep(1); };
@@ -241,8 +320,8 @@ export default function TransferPage() {
                 <div className="bg-zinc-50 border border-zinc-200 text-zinc-500 dark:bg-white/4 dark:border-white/8 rounded-xl p-3.5 px-4 text-xs dark:text-white/30 leading-relaxed">
                   Pastikan semua informasi sudah benar. Transaksi yang telah diproses tidak dapat dibatalkan.
                 </div>
-                <button className="w-full p-[15px] rounded-xl border-none cursor-pointer font-sans text-sm font-medium tracking-[0.05em] text-[#09090b] bg-gradient-to-br from-[#fbcfe8] to-[#f472b6] flex items-center justify-center gap-2 transition-all hover:opacity-88 active:scale-98 relative overflow-hidden after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/8 after:to-transparent after:pointer-events-none mt-auto" onClick={handleNextStep}>
-                  Transfer Sekarang
+                <button className="w-full p-[15px] rounded-xl border-none cursor-pointer font-sans text-sm font-medium tracking-[0.05em] text-[#09090b] bg-gradient-to-br from-[#fbcfe8] to-[#f472b6] flex items-center justify-center gap-2 transition-all hover:opacity-88 active:scale-98 relative overflow-hidden after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/8 after:to-transparent after:pointer-events-none mt-auto disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100" onClick={handleNextStep} disabled={submitting}>
+                  {submitting ? 'Memproses...' : 'Transfer Sekarang'}
                 </button>
               </div>
             </div>
@@ -296,7 +375,7 @@ export default function TransferPage() {
                 )}
                 <button
                   className={`relative z-10 w-[88px] h-[88px] rounded-full flex items-center justify-center cursor-pointer border-none transition-all hover:scale-106 active:scale-97 ${isListening ? 'bg-[#fbcfe8] shadow-[0_0_32px_rgba(251,207,232,.4)]' : 'bg-zinc-100 border border-zinc-200 dark:bg-white/4 dark:border-white/12'}`}
-                  onClick={() => setIsListening(p => !p)}
+                  onClick={toggleVoice}
                   aria-label={isListening ? 'Hentikan' : 'Mulai perintah suara'}
                 >
                   <Mic size={30} color={isListening ? '#09090b' : (theme === 'dark' ? 'rgba(251,207,232,.8)' : '#ec4899')} strokeWidth={1.75} />

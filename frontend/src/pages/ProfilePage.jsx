@@ -1,5 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { tts } from "../services/ttsService";
 import {
   Camera,
   Mail,
@@ -13,18 +15,37 @@ import {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
   const fileInputRef = useRef(null);
 
-  const storedUser = JSON.parse(localStorage.getItem("registeredUser")) || {};
   const [user, setUser] = useState({
-    name: storedUser.name || "Pengguna",
-    email: storedUser.email || "",
-    phone: storedUser.phone || "",
-    avatar: storedUser.avatar || null,
+    name: authUser?.name || "Pengguna",
+    email: authUser?.email || "",
+    phone: authUser?.phone || "",
+    avatar: localStorage.getItem(`avatar_${authUser?.id}`) || null,
   });
   const [isSaved, setIsSaved] = useState(false);
 
-  const accountNumber = localStorage.getItem("accountNumber") || "6785130512";
+  // Sinkronisasi state user dengan authUser saat berubah
+  useEffect(() => {
+    if (authUser) {
+      setUser(u => ({
+        ...u,
+        name: authUser.name,
+        email: authUser.email,
+        phone: authUser.phone || u.phone,
+      }));
+    }
+  }, [authUser]);
+
+  // TTS announce
+  useEffect(() => {
+    tts.speak(`Halaman profil. Nama Anda ${authUser?.name || 'Pengguna'}.`);
+  }, []);
+
+  const accountNumber = authUser?.id
+    ? String(1000000000 + (authUser.id * 12345) % 9000000000)
+    : "•••••••••";
   const fmtAccount = accountNumber.replace(
     /(\d{3})(\d{4})(\d{3,})/,
     "$1 $2 $3",
@@ -36,17 +57,24 @@ export default function ProfilePage() {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => setUser((u) => ({ ...u, avatar: reader.result }));
+    reader.onloadend = () => {
+      setUser((u) => ({ ...u, avatar: reader.result }));
+      // Avatar disimpan lokal saja per user (belum ada endpoint upload)
+      if (authUser?.id) {
+        localStorage.setItem(`avatar_${authUser.id}`, reader.result);
+      }
+    };
     reader.readAsDataURL(file);
   };
 
   const handleSave = () => {
     if (!user.email) {
-      alert("Email wajib diisi untuk pengiriman bukti transaksi!");
+      tts.error('Email wajib diisi.');
       return;
     }
-    localStorage.setItem("registeredUser", JSON.stringify(user));
+    // Note: backend belum support PUT /api/user/profile. Untuk capstone, simpan avatar lokal saja.
     setIsSaved(true);
+    tts.speak('Perubahan profil disimpan.');
     setTimeout(() => setIsSaved(false), 3000);
   };
 

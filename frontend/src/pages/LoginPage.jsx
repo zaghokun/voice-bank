@@ -2,34 +2,53 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mic } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useTheme } from '../hooks/useTheme';
+import { loginUser } from '../services/userService';
+import { tts } from '../services/ttsService';
 
 function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { theme } = useTheme();
   const [showSplash, setShowSplash] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const t = setTimeout(() => setShowSplash(false), 2600);
     return () => clearTimeout(t);
   }, []);
 
-  const handleLogin = (e) => {
+  // TTS announce halaman login saat splash selesai (a11y untuk tunanetra)
+  useEffect(() => {
+    if (!showSplash) {
+      tts.speak('Halaman login VoiceBank. Silakan masukkan email dan password Anda.');
+    }
+  }, [showSplash]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setEmailError('');
     setPasswordError('');
-
-    const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
-    if (!storedUser) { setEmailError('Email belum terdaftar'); return; }
-    if (email !== storedUser.email) { setEmailError('Email belum terdaftar'); return; }
-    if (password !== storedUser.password) { setPasswordError('Password salah'); return; }
-    login('mock-jwt-token', storedUser);
-    navigate('/dashboard');
+    setLoading(true);
+    try {
+      const data = await loginUser({ email, password });
+      login(data.access_token, data.user);
+      tts.welcome(data.user.name);
+      navigate('/dashboard');
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Login gagal';
+      if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('password')) {
+        setEmailError(msg);
+      } else {
+        setEmailError(msg);
+      }
+      tts.loginError();
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ── Splash Screen ── */
@@ -211,6 +230,7 @@ function LoginPage() {
           {/* Submit button — taller on mobile for easier tapping */}
           <button
             type="submit"
+            disabled={loading}
             className="
               w-full
               min-h-[52px] sm:min-h-0 p-[15px]
@@ -223,7 +243,7 @@ function LoginPage() {
               after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/8 after:to-transparent after:pointer-events-none
             "
           >
-            Masuk sekarang
+            {loading ? 'Memproses...' : 'Masuk sekarang'}
           </button>
         </form>
 

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Bell, User as UserIcon, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../hooks/useAuth';
 
 function generateAccountNumber() {
   return Math.floor(1000000000 + Math.random() * 9000000000).toString();
@@ -9,13 +10,17 @@ function generateAccountNumber() {
 export default function Header() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { user: authUser } = useAuth();
 
-  const user          = JSON.parse(localStorage.getItem('registeredUser')) || { name: 'Pengguna' };
-  const accountNumber = localStorage.getItem('accountNumber') || (() => {
-    const n = generateAccountNumber();
-    localStorage.setItem('accountNumber', n);
-    return n;
-  })();
+  const user = authUser || { name: 'Pengguna' };
+  // Account number derived from user.id (deterministic) atau fallback random
+  const accountNumber = user?.id
+    ? String(1000000000 + (user.id * 12345) % 9000000000)
+    : (localStorage.getItem('accountNumber') || (() => {
+        const n = generateAccountNumber();
+        localStorage.setItem('accountNumber', n);
+        return n;
+      })());
 
   /* Format account: 829 3810 2938 style */
   const fmtAccount = accountNumber.replace(/(\d{3})(\d{4})(\d{3,})/, '$1 $2 $3');

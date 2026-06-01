@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   Mic, Send, History, QrCode, PlusCircle,
   PiggyBank, CreditCard, Bell, User, Eye, EyeOff,
-  ArrowUpRight, ArrowDownRight, ChevronRight
+  ArrowUpRight, ArrowDownRight, ChevronRight, Volume2
 } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../hooks/useAuth';
+import { getBalance, getTransactions } from '../services/transactionService';
+import { sendVoiceCommand } from '../services/voiceService';
+import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { tts } from '../services/ttsService';
 
 /* ─── Icon color map ─── */
 const actionMeta = {
@@ -15,55 +20,165 @@ const actionMeta = {
   'Top Up':    { bg: 'rgba(245,158,11,0.12)', color: '#fbbf24' },
   Tabung:      { bg: 'rgba(236,72,153,0.12)', color: '#f472b6' },
   Bayar:       { bg: 'rgba(99,102,241,0.12)', color: '#818cf8' },
-  Notifikasi:  { bg: 'rgba(249,115,22,0.12)', color: '#fb923c' },
+  Bantuan:     { bg: 'rgba(249,115,22,0.12)', color: '#fb923c' },
   Profil:      { bg: 'rgba(255,255,255,0.08)', color: '#fbcfe8' },
 };
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { user: authUser } = useAuth();
   const [showBalance, setShowBalance] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   const [voiceText, setVoiceText] = useState('');
+  const [voiceProcessing, setVoiceProcessing] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem('registeredUser')) || { name: 'Pengguna' };
-  const accountNumberRaw = localStorage.getItem('accountNumber') || '829 3810 2938';
-  const balance = 12500000;
+  const user = authUser || { name: 'Pengguna' };
+  const accountNumberRaw = user?.id
+    ? String(1000000000 + (user.id * 12345) % 9000000000).replace(/(\d{3})(\d{4})(\d{3,})/, '$1 $2 $3')
+    : '••• •••• ••••';
+  const [balance, setBalance] = useState(0);
+  const [recentTransactions, setRecentTransactions] = useState([]);
 
   const firstName = user?.name?.split(' ')[0] || 'Pengguna';
+
+  const { recording, audioBlob, startRecording, stopRecording } = useAudioRecorder();
+
+  // Fetch balance + transactions saat mount
+  useEffect(() => {
+    getBalance()
+      .then(d => setBalance(d.balance))
+      .catch(() => {});
+    getTransactions()
+      .then(txs => {
+        const last3 = txs.slice(0, 3).map(tx => ({
+          title: tx.type === 'transfer'
+            ? `Transfer ke ${tx.target_user || 'Penerima'}`
+            : 'Tabungan',
+          amount: tx.amount,
+          type: tx.type === 'tabung' ? 'in' : 'out',
+          date: new Date(tx.created_at).toLocaleString('id-ID', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+          }),
+        }));
+        setRecentTransactions(last3);
+      })
+      .catch(() => {});
+  }, []);
+
+  // TTS announce halaman dashboard pas balance ter-load
+  useEffect(() => {
+    if (balance > 0 && authUser) {
+      tts.speak(
+        `Halaman utama. Selamat datang ${authUser.name}. Saldo Anda Rp ${balance.toLocaleString('id-ID')}. ` +
+        `Tekan tombol mikrofon atau spasi untuk memulai perintah suara.`
+      );
+    }
+  }, [balance, authUser]);
+
+  // Voice routing handler — sesuai 5 intent model
+  const handleVoiceResult = (data) => {
+    const { intent, confidence } = data;
+
+    if (confidence < 0.6) {
+      tts.error('Maaf, perintah tidak terdeteksi dengan jelas. Silakan ulangi.');
+      return;
+    }
+
+    tts.intentDetected(intent, confidence);
+
+    setTimeout(() => {
+      switch (intent) {
+        case 'TRANSFER':
+          tts.speak('Membuka halaman transfer.');
+          navigate('/transfer');
+          break;
+        case 'CEK_SALDO':
+          tts.balance(balance.toLocaleString('id-ID'));
+          break;
+        case 'RIWAYAT':
+          tts.speak('Membuka riwayat transaksi.');
+          navigate('/history');
+          break;
+        case 'TABUNG':
+          tts.speak('Membuka halaman menabung.');
+          navigate('/savings');
+          break;
+        case 'BANTUAN':
+          tts.speak('Membuka halaman bantuan.');
+          navigate('/help');
+          break;
+        default:
+          tts.error('Intent tidak dikenali.');
+      }
+    }, 2500);
+  };
+
+  // Toggle voice button: mulai/stop rekam
+  const handleToggleVoice = () => {
+    if ('vibrate' in navigator) navigator.vibrate([80, 40, 80]);
+    if (recording) {
+      stopRecording();
+      tts.recordingStop();
+      setVoiceText('Memproses rekaman...');
+    } else {
+      tts.recordingStart();
+      setVoiceText('Mendengarkan...');
+      startRecording();
+    }
+  };
+
+  // Setelah audioBlob siap, kirim ke backend
+  useEffect(() => {
+    if (!audioBlob) return;
+    let cancelled = false;
+    setVoiceProcessing(true);
+    sendVoiceCommand(audioBlob)
+      .then(data => {
+        if (cancelled) return;
+        setVoiceText(`"${data.intent}" (${(data.confidence * 100).toFixed(0)}%)`);
+        handleVoiceResult(data);
+      })
+      .catch(err => {
+        if (cancelled) return;
+        const msg = err.response?.data?.detail || 'Gagal memproses perintah suara';
+        setVoiceText('Gagal memproses');
+        tts.error(msg);
+      })
+      .finally(() => {
+        if (!cancelled) setVoiceProcessing(false);
+      });
+    return () => { cancelled = true; };
+  }, [audioBlob]);
+
+  // Listen Balance: bacakan saldo via TTS
+  const handleListenBalance = () => {
+    tts.balance(balance.toLocaleString('id-ID'));
+  };
+
+  // Keyboard shortcut: Spasi = mic
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        handleToggleVoice();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [recording]);
+
+  const isListening = recording || voiceProcessing;
 
   const quickMenus = [
     { title: 'Transfer',   icon: Send,       path: '/transfer' },
     { title: 'Riwayat',    icon: History,    path: '/history' },
-    { title: 'QRIS',       icon: QrCode,     path: '/qris' },
-    { title: 'Top Up',     icon: PlusCircle, path: '/topup' },
+    { title: 'QRIS',       icon: QrCode,     path: '/coming-soon' },
+    { title: 'Top Up',     icon: PlusCircle, path: '/coming-soon' },
     { title: 'Tabung',     icon: PiggyBank,  path: '/savings' },
-    { title: 'Bayar',      icon: CreditCard, path: '/payment' },
-    { title: 'Notifikasi', icon: Bell,       path: '/notifications' },
+    { title: 'Bayar',      icon: CreditCard, path: '/coming-soon' },
+    { title: 'Bantuan',    icon: Bell,       path: '/help' },
     { title: 'Profil',     icon: User,       path: '/profile' },
   ];
-
-  const recentTransactions = [
-    { title: 'Transfer ke Budi',      amount: 50000,  type: 'out', date: 'Hari ini, 10:24' },
-    { title: 'Terima Dana (Top Up)',  amount: 250000, type: 'in',  date: 'Kemarin, 14:10' },
-    { title: 'Bayar Listrik',         amount: 100000, type: 'out', date: '12 Mei, 09:00' },
-  ];
-
-  const handleToggleVoice = () => {
-    if ('vibrate' in navigator) navigator.vibrate([80, 40, 80]);
-    setIsListening(p => !p);
-  };
-
-  useEffect(() => {
-    let t;
-    if (isListening) {
-      setVoiceText('Mendengarkan…');
-      t = setTimeout(() => setVoiceText('"Cek saldo saya"'), 2000);
-    } else {
-      setVoiceText('');
-    }
-    return () => clearTimeout(t);
-  }, [isListening]);
 
   return (
     <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#09090b] bg-[radial-gradient(ellipse_70%_50%_at_30%_-5%,rgba(99,102,241,0.05)_0%,transparent_65%),radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(244,114,182,0.04)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_70%_50%_at_30%_-5%,rgba(29,78,216,0.10)_0%,transparent_65%),radial-gradient(ellipse_50%_40%_at_80%_80%,rgba(29,78,216,0.06)_0%,transparent_60%)] text-zinc-800 dark:text-white p-6 pb-12 animate-fade-up font-sans selection:bg-pink-500/10 dark:selection:bg-[#fbcfe8]/30">
@@ -107,6 +222,13 @@ export default function DashboardPage() {
                       {showBalance
                         ? <EyeOff size={14} />
                         : <Eye size={14} />}
+                    </button>
+                    <button
+                      className="w-8 h-8 rounded-[10px] bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 dark:bg-white/4 dark:border-white/8 flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 text-zinc-400 dark:text-white/40 dark:hover:bg-white/12 dark:hover:text-white"
+                      onClick={handleListenBalance}
+                      aria-label="Dengarkan saldo"
+                    >
+                      <Volume2 size={14} />
                     </button>
                   </div>
                 </div>

@@ -30,7 +30,7 @@ def load_test_data(data_dir: str):
     data_path = Path(data_dir)
 
     # Coba load test_mfcc.npz
-    test_file = data_path / "test_mfcc.npz"
+    test_file = data_path / "test_mfcc_final.npz"
     if not test_file.exists():
         raise FileNotFoundError(f"Test data tidak ditemukan: {test_file}")
 

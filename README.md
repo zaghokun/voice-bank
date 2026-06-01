@@ -21,6 +21,8 @@ Sistem akan memahami perintah, mengonfirmasi, dan memberikan umpan balik audio y
 
 **5 Intent yang Didukung:** `TRANSFER` · `CEK_SALDO` · `RIWAYAT` · `TABUNG` · `BANTUAN`
 
+**Halaman:** Dashboard, Transfer (4 step), Riwayat, Tabung, Bantuan, Profil + Coming Soon untuk fitur backlog (QRIS, Top Up, Bayar)
+
 ---
 
 ## 🛠 Tech Stack
