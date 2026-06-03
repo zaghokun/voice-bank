@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Fingerprint,
   ShieldCheck,
   X,
 } from 'lucide-react';
 import { registerBiometric, isWebAuthnSupported } from '../services/webauthnService';
+import { speak } from '../services/ttsService';
 
 export default function BiometricSetupModal({
   open,
@@ -15,6 +16,13 @@ export default function BiometricSetupModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // TTS announce saat modal buka
+  useEffect(() => {
+    if (open) {
+      speak('Pengaturan biometrik. Gunakan fingerprint atau Face ID perangkat Anda agar proses transfer lebih cepat dan aman.');
+    }
+  }, [open]);
+
   if (!open) return null;
 
   const handleRegister = async () => {
@@ -23,15 +31,21 @@ export default function BiometricSetupModal({
       setError('');
 
       if (!isWebAuthnSupported()) {
-        throw new Error('Perangkat atau browser Anda tidak mendukung WebAuthn.');
+        const errorMsg = 'Perangkat atau browser Anda tidak mendukung WebAuthn.';
+        setError(errorMsg);
+        speak(errorMsg);
+        throw new Error(errorMsg);
       }
 
+      speak('Silakan gunakan biometrik perangkat Anda untuk mendaftar.');
       await registerBiometric(userId);
-      // Save to localStorage for frontend testing
       localStorage.setItem('webauthn_credential_id', 'mocked_credential');
+      speak('Biometrik berhasil didaftarkan.');
       onSuccess();
     } catch (err) {
-      setError(err.message || 'Registrasi biometrik gagal. Silakan coba lagi.');
+      const errorMsg = err.message || 'Registrasi biometrik gagal. Silakan coba lagi.';
+      setError(errorMsg);
+      speak(errorMsg);
     } finally {
       setLoading(false);
     }

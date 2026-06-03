@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, X, ShieldCheck } from 'lucide-react';
+import { speak } from '../services/ttsService';
 
 export default function PinSetupModal({
   open,
@@ -11,26 +12,48 @@ export default function PinSetupModal({
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
 
+  // TTS announce saat modal buka
+  useEffect(() => {
+    if (open) {
+      speak('Pengaturan PIN transaksi. Masukkan 6 digit angka untuk mengamankan transaksi Anda.');
+    }
+  }, [open]);
+
+  // TTS announce saat pindah step
+  useEffect(() => {
+    if (open && step === 2) {
+      speak('Langkah 2. Masukkan kembali 6 digit PIN untuk konfirmasi.');
+    }
+  }, [step, open]);
+
   if (!open) return null;
 
   const handleNext = () => {
     if (pin.length !== 6) {
       setError('PIN harus 6 angka.');
+      speak('PIN harus 6 angka.');
       return;
     }
     setError('');
+    setConfirmPin('');
     setStep(2);
   };
 
   const handleSave = () => {
     if (pin !== confirmPin) {
       setError('PIN tidak cocok. Silakan coba lagi.');
+      speak('PIN tidak cocok. Silakan coba lagi.');
       return;
     }
     
-    // Save to local storage for frontend testing
     localStorage.setItem('transaction_pin', pin);
+    speak('PIN transaksi berhasil disimpan.');
     onSuccess();
+    
+    setPin('');
+    setConfirmPin('');
+    setStep(1);
+    setError('');
   };
 
   const reset = () => {
@@ -90,8 +113,11 @@ export default function PinSetupModal({
             value={step === 1 ? pin : confirmPin}
             onChange={(e) => {
               const val = e.target.value.replace(/[^0-9]/g, '');
-              if (step === 1) setPin(val);
-              else setConfirmPin(val);
+              if (step === 1) {
+                setPin(val);
+              } else {
+                setConfirmPin(val);
+              }
               setError('');
             }}
             placeholder="••••••"

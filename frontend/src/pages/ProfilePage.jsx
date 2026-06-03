@@ -39,9 +39,15 @@ export default function ProfilePage() {
 
   useEffect(() => {
     // Check local storage for PIN setup
-    if (localStorage.getItem('transaction_pin')) {
-      setIsPinRegistered(true);
-    }
+    const checkPinStatus = () => {
+      if (localStorage.getItem('transaction_pin')) {
+        setIsPinRegistered(true);
+      } else {
+        setIsPinRegistered(false);
+      }
+    };
+    
+    checkPinStatus();
     
     getProfile()
       .then((profile) => {
@@ -52,7 +58,7 @@ export default function ProfilePage() {
         setUser((u) => ({ ...u, id: profile.id || u.id }));
       })
       .catch((err) => console.error("Gagal mengambil profil:", err));
-  }, []);
+  }, [showPinModal, showBiometricModal]); // Re-check saat modal ditutup
 
   // Sinkronisasi state user dengan authUser saat berubah
   useEffect(() => {
@@ -359,8 +365,11 @@ export default function ProfilePage() {
         open={showPinModal}
         onClose={() => setShowPinModal(false)}
         onSuccess={() => {
+          const savedPin = localStorage.getItem('transaction_pin');
+          if (savedPin) {
+            setIsPinRegistered(true);
+          }
           setShowPinModal(false);
-          setIsPinRegistered(true);
         }}
       />
     </div>

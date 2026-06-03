@@ -120,30 +120,55 @@ Kolom ini menyimpan credential ID yang didapat dari `navigator.credentials.creat
 
 ## Testing
 
-1. Install dependencies (jika belum):
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
+### 1. Recreate Database (PENTING!)
 
-2. Jalankan server:
-   ```bash
-   uvicorn app.main:app --reload --port 8000
-   ```
+Karena ada kolom baru `webauthn_credential_id`, database perlu dibuat ulang:
 
-3. Hapus database lama (jika ada) agar kolom baru terbentuk:
-   ```bash
-   del voicebank.db  # Windows
-   # atau
-   rm voicebank.db   # Linux/Mac
-   ```
-   Database akan otomatis dibuat ulang saat server start.
+```bash
+cd backend
+python recreate_db.py
+```
 
-4. Test endpoint via Swagger UI:
-   - Buka `http://localhost:8000/docs`
-   - Login dulu via `/api/auth/login` untuk dapat token
-   - Klik "Authorize" di kanan atas, masukkan token
-   - Test endpoint `/api/auth/webauthn/register` dan `/api/auth/webauthn/verify`
+Script ini akan:
+- Hapus `voicebank.db` lama
+- Buat database baru dengan schema terbaru (termasuk kolom WebAuthn)
+
+### 2. Install Dependencies (jika belum):
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Jalankan Backend:
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+### 4. Jalankan Frontend:
+
+```bash
+cd ../frontend
+npm run dev
+```
+
+### 5. Test Flow Lengkap:
+
+1. **Register user baru** di `http://localhost:5173`
+2. **Login**
+3. **Setup biometric** di halaman Profile (klik "Setup Biometric")
+4. Browser akan minta fingerprint/face ID → scan
+5. Credential tersimpan di backend
+6. **Test transfer** → di step 3 (konfirmasi), browser akan minta biometric lagi
+7. Jika berhasil → transfer diproses
+8. Jika gagal → fallback ke PIN
+
+### 6. Test via Swagger UI (Optional):
+
+- Buka `http://localhost:8000/docs`
+- Login dulu via `/api/auth/login` untuk dapat token
+- Klik "Authorize" di kanan atas, masukkan token dengan format: `Bearer <token>`
+- Test endpoint `/api/auth/webauthn/register` dan `/api/auth/webauthn/verify`
 
 ---
 

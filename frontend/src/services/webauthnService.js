@@ -44,10 +44,12 @@ export async function registerBiometric(userId) {
     )
   );
 
-  // Mock backend registration for frontend testing
-  console.log('Sending to backend register:', credentialId);
+  // Kirim ke backend
+  const response = await api.post('/auth/webauthn/register', {
+    credential_id: credentialId
+  });
 
-  return credentialId;
+  return response.data.success;
 }
 
 export async function authenticateBiometric() {
@@ -68,7 +70,10 @@ export async function authenticateBiometric() {
     )
   );
 
-  // Mock backend verification for frontend testing
-  console.log('Sending to backend:', credentialId);
-  return true;
+  // Kirim ke backend untuk verifikasi
+  const response = await api.post('/auth/webauthn/verify', {
+    credential_id: credentialId
+  });
+
+  return response.data.verified;
 }
