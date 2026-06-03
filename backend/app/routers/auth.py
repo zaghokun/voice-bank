@@ -4,6 +4,12 @@ from app.core.database import get_db
 from app.core.security import hash_password, verify_password, create_access_token, get_current_user
 from app.models.user import User
 from app.schemas.user import UserRegister, UserLogin, UserResponse, TokenResponse
+from app.schemas.webauthn import (
+    RegisterCredentialRequest,
+    RegisterCredentialResponse,
+    VerifyCredentialRequest,
+    VerifyCredentialResponse,
+)
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -45,3 +51,43 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
 def get_me(user: User = Depends(get_current_user)):
     """Get data user yang sedang login (dari JWT token)."""
     return user
+
+
+@router.post("/webauthn/register", response_model=RegisterCredentialResponse)
+def register_webauthn(
+    data: RegisterCredentialRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Register WebAuthn credential untuk user yang sedang login."""
+    user.webauthn_credential_id = data.credential_id
+    db.commit()
+    return RegisterCredentialResponse(
+        success=True,
+        message="Credential berhasil didaftarkan"
+    )
+
+
+@router.post("/webauthn/verify", response_model=VerifyCredentialResponse)
+def verify_webauthn(
+    data: VerifyCredentialRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Verifikasi WebAuthn credential untuk konfirmasi transaksi."""
+    if not user.webauthn_credential_id:
+        return VerifyCredentialResponse(
+            verified=False,
+            message="Credential belum terdaftar"
+        )
+    
+    if user.webauthn_credential_id == data.credential_id:
+        return VerifyCredentialResponse(
+            verified=True,
+            message="Credential terverifikasi"
+        )
+    
+    return VerifyCredentialResponse(
+        verified=False,
+        message="Credential tidak cocok"
+    )

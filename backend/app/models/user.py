@@ -12,4 +12,5 @@ class User(Base):
     disability_type = Column(String, nullable=True)
     preferred_dialect = Column(String, nullable=True)
     balance = Column(Integer, default=0)
+    webauthn_credential_id = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
